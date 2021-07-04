@@ -43,7 +43,8 @@ class Arrow @JvmOverloads constructor(
         getElements().add(LineTo(endX, endY))
     }
 }
-fun shortenedLine(line : Line, len: Double): Line{
+
+fun shortenedLine(line: Line, len: Double): Line {
     val x2 = line.endX
     val x1 = line.startX
     val y2 = line.endY
@@ -62,11 +63,12 @@ fun shortenedLine(line : Line, len: Double): Line{
     val y3 = (y1 + dy)
     return Line(x1, y1, x3, y3)
 }
-class Painter{
+
+class Painter {
 
     private fun paintVertex(v: Vertex, x: Double, y: Double, rad: Double = 25.0): StackPane {
 
-        var circle =  Circle()
+        var circle = Circle()
         circle.setRadius(rad)
         circle.setCenterX(x)
         circle.setCenterY(y)
@@ -80,24 +82,25 @@ class Painter{
         s.maxWidth = 30.0
         return s
     }
-    fun paintGraph(g: Graph): Pane{
-       var p = Pane()
+
+    fun paintGraph(g: Graph): Pane {
+        var p = Pane()
         p.maxHeight = 300.0
         p.maxWidth = 300.0
         val r = 200.0
         val num = g.getVertices().size
         var vwc = mutableListOf<Triple<Vertex, Double, Double>>() //vertices with coordinates
-        for (i in 0 until num){
+        for (i in 0 until num) {
             val cntr = p.maxHeight / 2 + 100.0
-            val circle_x = r * Math.cos(2 * Math.PI * i/num) + cntr
-            val circle_y = r * Math.sin(2 * Math.PI * i/num) + cntr
-           // p.add(paintVertex(g.getVertices()[i], circle_x, circle_y))
+            val circle_x = r * Math.cos(2 * Math.PI * i / num) + cntr
+            val circle_y = r * Math.sin(2 * Math.PI * i / num) + cntr
+            // p.add(paintVertex(g.getVertices()[i], circle_x, circle_y))
             vwc.add(Triple(g.getVertices()[i], circle_x + 25.0, circle_y + 25.0))
         }
-        for (a in 0 until g.getMatrix().size){
-            for (b in 0 until g.getMatrix()[a].size){
+        for (a in 0 until g.getMatrix().size) {
+            for (b in 0 until g.getMatrix()[a].size) {
                 println(g.getMatrix()[a][b])
-                if (g.getMatrix()[a][b] > 40) {
+                if (g.getMatrix()[a][b] > 0) {
                     val line = Line(vwc[a].second, vwc[a].third, vwc[b].second, vwc[b].third)
                     var edge = shortenedLine(line, 25.0)
                     p.add(Arrow(edge.startX, edge.startY, edge.endX, edge.endY, 10.0))
@@ -109,10 +112,10 @@ class Painter{
                 }
             }
         }
-        for (e in vwc){
-           p.add(paintVertex(e.first, e.second - 25.0, e.third - 25.0))
+        for (e in vwc) {
+            p.add(paintVertex(e.first, e.second - 25.0, e.third - 25.0))
         }
-       // p.setStyle("-fx-border-color: black");
+        // p.setStyle("-fx-border-color: black");
         return p
     }
 }

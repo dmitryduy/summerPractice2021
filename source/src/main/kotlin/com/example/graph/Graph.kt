@@ -14,25 +14,28 @@ class Graph(graphType: GraphType = GraphType.CommonGraph) {
     init {
         if (graphType == GraphType.RandomGraph) {
             //generate random graph
-            val numberOfVertices: Int = Random.nextInt(4, 15)
-            val numberOfEdges: Int = Random.nextInt(numberOfVertices - 1, numberOfVertices * (numberOfVertices - 1))
+            //  val numberOfVertices: Int = Random.nextInt(4, 10)
+            val numberOfVertices: Int = Random.nextInt(4, 10)
+            //val numberOfEdges: Int = Random.nextInt(numberOfVertices - 1, numberOfVertices * (numberOfVertices - 1))
             for (i in 1..numberOfVertices) {
                 addVertex(i.toString())
             }
             for (i in 0..numberOfVertices - 1) {
-                for (j in 0..numberOfVertices - 1) {
-                    addEdge(vertices[i], vertices[j], Random.nextInt(1, 50))
+                var k = 0
+                if (numberOfVertices > 6) {
+                    k = Random.nextInt(2, numberOfVertices - 4) / 2
+                } else {
+                    k = Random.nextInt(2, numberOfVertices - 1)
                 }
-            }
-            var k = numberOfVertices * (numberOfVertices - 1)
-            while (k != numberOfEdges) {
-                while (!delEdge(
-                        vertices[Random.nextInt(0, numberOfVertices - 1)],
-                        vertices[Random.nextInt(0, numberOfVertices - 1)]
-                    )
-                ) {
+                for (j in 0..k) {
+                    var n = Random.nextInt(vertices.size)
+                    if (i != n) {
+                        addEdge(vertices[i], vertices[n], Random.nextInt(1, 6))
+                    } else {
+                         n = Random.nextInt(vertices.size)
+                        addEdge(vertices[i], vertices[n], Random.nextInt(1, 6))
+                    }
                 }
-                k -= 1
             }
         }
     }
