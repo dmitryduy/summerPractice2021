@@ -25,10 +25,10 @@ internal class GraphTest {
             graph.addVertex(i)
         }
         assertEquals("A", graph.getVertices()[0].getValue(), "A != graph.vertices[0]")
-        assertEquals("B", graph.getVertices()[1].getValue(), "A != graph.vertices[0]")
-        assertEquals("C", graph.getVertices()[2].getValue(), "A != graph.vertices[0]")
-        assertEquals("D", graph.getVertices()[3].getValue(), "A != graph.vertices[0]")
-        assertEquals("E", graph.getVertices()[4].getValue(), "A != graph.vertices[0]")
+        assertEquals("B", graph.getVertices()[1].getValue(), "B != graph.vertices[0]")
+        assertEquals("C", graph.getVertices()[2].getValue(), "C != graph.vertices[0]")
+        assertEquals("D", graph.getVertices()[3].getValue(), "D != graph.vertices[0]")
+        assertEquals("E", graph.getVertices()[4].getValue(), "E != graph.vertices[0]")
         for (i in graph.getMatrix()) {
             assertEquals(5, i.size, "Size matrix before add edges")
         }
