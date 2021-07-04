@@ -139,13 +139,14 @@ class Painter{
                             endX,
                             endY
                         )
-                        curvePair = returnPoint(startX, endX, startY, endY, dist / 2, mul)
-                        centerX = curvePair.first
-                        centerY = curvePair.second
+
                         curve.fill = Color.TRANSPARENT
                         curve.stroke = Color.BLACK
                         p.add(curve)
                         p.add(Arrow(curvePair.first, curvePair.second, curve.endX, curve.endY, 10.0, true))
+                        curvePair = returnPoint(startX, endX, startY, endY, dist / 2, mul)
+                        centerX = curvePair.first
+                        centerY = curvePair.second
                     }
                     else
                         p.add(Arrow(edge.startX, edge.startY, edge.endX, edge.endY, 10.0))
