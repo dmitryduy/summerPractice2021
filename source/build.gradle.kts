@@ -38,3 +38,12 @@ tasks {
 tasks.test {
     useJUnitPlatform()
 }
+
+sourceSets {
+    main {
+        resources {
+            srcDir("src/main/kotlin/")
+            include("**/**/**/*.fxml")
+        }
+    }
+}
