@@ -20,6 +20,10 @@ application {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("no.tornado:tornadofx:$tornadofx_version")
+    implementation("org.junit.jupiter:junit-jupiter:5.7.0")
+    implementation("org.junit.jupiter:junit-jupiter:5.7.0")
+    implementation("org.junit.jupiter:junit-jupiter:5.7.0")
+    implementation("org.junit.jupiter:junit-jupiter:5.7.0")
     testImplementation(kotlin("test-junit"))
 }
 
@@ -30,4 +34,7 @@ tasks {
     compileTestKotlin {
         kotlinOptions.jvmTarget = "1.8"
     }
+}
+tasks.test {
+    useJUnitPlatform()
 }
