@@ -74,7 +74,7 @@ fun returnPoint(x1: Double, x2: Double, y1: Double, y2: Double, distance: Double
         return Pair((x1 + x2)/2, y1 + distance * minus)
     var res = y2 - y1
     val k = (x1 - x2)/res
-    println(k)
+    //println(k)
     val b = (y1 + y2)/2 - (x1 + x2)/2 * k
     val x1 = (x1 + x2) / 2
     val y1 = (y1 + y2) / 2
