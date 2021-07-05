@@ -1,9 +1,9 @@
 package com.example.painter
 
 import com.example.graph.*
+import javafx.geometry.Insets
 import javafx.scene.control.Label
-import javafx.scene.layout.Pane
-import javafx.scene.layout.StackPane
+import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import javafx.scene.shape.*
 import tornadofx.*
@@ -70,7 +70,11 @@ fun shortenedLine(line : Line, len: Double): Line{
 
 }
 fun returnPoint(x1: Double, x2: Double, y1: Double, y2: Double, distance: Double, minus: Int): Pair<Double, Double>{
-    val k = (x1 - x2)/(y2 - y1)
+    if (Math.abs(y2 - y1) < 1)
+        return Pair((x1 + x2)/2, y1 + distance * minus)
+    var res = y2 - y1
+    val k = (x1 - x2)/res
+    println(k)
     val b = (y1 + y2)/2 - (x1 + x2)/2 * k
     val x1 = (x1 + x2) / 2
     val y1 = (y1 + y2) / 2
@@ -115,10 +119,8 @@ class Painter{
             for (b in 0 until g.getMatrix()[a].size){
                 // println(g.getMatrix()[a][b])
                 if (g.getMatrix()[a][b] > 0) {
-                    numberEdge++
                     val startX = vwc[a].second
                     val startY = vwc[a].third
-
                     val line = Line(vwc[a].second, vwc[a].third, vwc[b].second, vwc[b].third)
                     var edge = shortenedLine(line, 25.0)
                     val endX = edge.endX
@@ -127,7 +129,7 @@ class Painter{
                     var centerY = (edge.endY + edge.startY) / 2
                     val dist = 45.0
                     if (g.getMatrix()[b][a] > 0) {
-                        val mul = if (b > a ) -1 else 1
+                        val mul = if (b > a) -1 else 1
                         var curvePair = returnPoint(startX, endX, startY, endY, dist, mul)
                         centerX = curvePair.first
                         centerY = curvePair.second
@@ -155,6 +157,7 @@ class Painter{
                     weight.setStyle("-fx-font-smoothing-type: lcd; -fx-fill: white; -fx-font-size: 15pt;")
                     weight.layoutX = centerX
                     weight.layoutY = centerY
+                  //  weight.background = Background(BackgroundFill(Color.rgb(223, 223, 223), CornerRadii(5.0), Insets(-5.0)))
                     p.add(weight)
                 }
             }
