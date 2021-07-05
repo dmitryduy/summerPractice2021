@@ -1,19 +1,21 @@
 package com.example.painter
 
 import com.example.graph.*
+import javafx.geometry.Insets
 import javafx.scene.control.Label
-import javafx.scene.layout.Pane
-import javafx.scene.layout.StackPane
+import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import javafx.scene.shape.*
 import tornadofx.*
+import javafx.scene.shape.QuadCurveTo;
 
 class Arrow @JvmOverloads constructor(
     startX: Double,
     startY: Double,
     endX: Double,
     endY: Double,
-    arrowHeadSize: Double = defaultArrowHeadSize
+    arrowHeadSize: Double = defaultArrowHeadSize,
+    curved: Boolean = false
 ) :
     Path() {
     companion object {
@@ -26,7 +28,10 @@ class Arrow @JvmOverloads constructor(
 
         //Line
         getElements().add(MoveTo(startX, startY))
-        getElements().add(LineTo(endX, endY))
+
+        if (curved == false)
+            getElements().add(LineTo(endX, endY))
+        else getElements().add(MoveTo(endX, endY))
 
         //ArrowHead
         val angle = Math.atan2(endY - startY, endX - startX) - Math.PI / 2.0
@@ -41,10 +46,10 @@ class Arrow @JvmOverloads constructor(
         getElements().add(LineTo(x1, y1))
         getElements().add(LineTo(x2, y2))
         getElements().add(LineTo(endX, endY))
+
     }
 }
-
-fun shortenedLine(line: Line, len: Double): Line {
+fun shortenedLine(line : Line, len: Double): Line{
     val x2 = line.endX
     val x1 = line.startX
     val y2 = line.endY
@@ -62,13 +67,40 @@ fun shortenedLine(line: Line, len: Double): Line {
     val x3 = (x1 + dx)
     val y3 = (y1 + dy)
     return Line(x1, y1, x3, y3)
-}
 
-class Painter {
+}
+fun returnPoint(x1: Double, x2: Double, y1: Double, y2: Double, distance: Double, minus: Int): Pair<Double, Double>{
+    if (Math.abs(y2 - y1) < 1)
+        return Pair((x1 + x2)/2, y1 + distance * minus)
+    var res = y2 - y1
+    val k = (x1 - x2)/res
+    //println(k)
+    val b = (y1 + y2)/2 - (x1 + x2)/2 * k
+    val x1 = (x1 + x2) / 2
+    val y1 = (y1 + y2) / 2
+    var x3 = x1 + distance/Math.sqrt(1 + k*k) * minus
+    var y3 = k * x3 + b
+    return Pair(x3, y3)
+}
+fun drawLoop(x: Double, y: Double, angle: Double = 0.0): Pane{
+    var p = Pane()
+    val xpar = 30
+    val ypar = 15
+    var x = x + 25.0
+    p.add(Line(x, y, x + xpar, y - ypar))
+    p.add(Line(x, y, x + xpar, y + ypar))
+    var cc = CubicCurve(x + xpar, y + ypar, x + 2*xpar, y + ypar + 10, x + 2 *xpar, y - ypar - 10, x + xpar, y - ypar)
+    cc.fill = Color.TRANSPARENT
+    cc.stroke = Color.BLACK
+    p.add(cc)
+    p.add(Arrow(x + xpar, y + ypar, x, y, 10.0, true))
+    return p
+}
+class Painter{
 
     private fun paintVertex(v: Vertex, x: Double, y: Double, rad: Double = 25.0): StackPane {
 
-        var circle = Circle()
+        var circle =  Circle()
         circle.setRadius(rad)
         circle.setCenterX(x)
         circle.setCenterY(y)
@@ -82,37 +114,73 @@ class Painter {
         s.maxWidth = 30.0
         return s
     }
-
-    fun paintGraph(g: Graph): Pane {
+    fun paintGraph(g: Graph): Pane{
         var p = Pane()
         p.maxHeight = 300.0
         p.maxWidth = 300.0
         val r = 200.0
         val num = g.getVertices().size
         var vwc = mutableListOf<Triple<Vertex, Double, Double>>() //vertices with coordinates
-        for (i in 0 until num) {
+        for (i in 0 until num){
             val cntr = p.maxHeight / 2 + 100.0
-            val circle_x = r * Math.cos(2 * Math.PI * i / num) + cntr
-            val circle_y = r * Math.sin(2 * Math.PI * i / num) + cntr
-            // p.add(paintVertex(g.getVertices()[i], circle_x, circle_y))
+            val circle_x = r * Math.cos(2 * Math.PI * i/num) + cntr
+            val circle_y = r * Math.sin(2 * Math.PI * i/num) + cntr
+            //p.add(paintVertex(g.getVertices()[i], circle_x, circle_y))
             vwc.add(Triple(g.getVertices()[i], circle_x + 25.0, circle_y + 25.0))
         }
-        for (a in 0 until g.getMatrix().size) {
-            for (b in 0 until g.getMatrix()[a].size) {
-                println(g.getMatrix()[a][b])
+        var numberEdge = 0
+        for (a in 0 until g.getMatrix().size){
+            for (b in 0 until g.getMatrix()[a].size){
+                // println(g.getMatrix()[a][b])
                 if (g.getMatrix()[a][b] > 0) {
+                    val startX = vwc[a].second
+                    val startY = vwc[a].third
                     val line = Line(vwc[a].second, vwc[a].third, vwc[b].second, vwc[b].third)
                     var edge = shortenedLine(line, 25.0)
-                    p.add(Arrow(edge.startX, edge.startY, edge.endX, edge.endY, 10.0))
+                    val endX = edge.endX
+                    val endY = edge.endY
+                    var centerX = (edge.endX + edge.startX) / 2
+                    var centerY = (edge.endY + edge.startY) / 2
+                    val dist = 45.0
+                    if (a == b){
+                        p.add(drawLoop(startX, startY))
+                    }
+                    else
+                    if (g.getMatrix()[b][a] > 0) {
+                        val mul = if (b > a) -1 else 1
+                        var curvePair = returnPoint(startX, endX, startY, endY, dist, mul)
+                        centerX = curvePair.first
+                        centerY = curvePair.second
+                        val curve = QuadCurve(
+                            startX,
+                            startY,
+                            centerX,
+                            centerY,
+                            endX,
+                            endY
+                        )
+
+                        curve.fill = Color.TRANSPARENT
+                        curve.stroke = Color.BLACK
+                        p.add(curve)
+                        p.add(Arrow(curvePair.first, curvePair.second, curve.endX, curve.endY, 10.0, true))
+                        curvePair = returnPoint(startX, endX, startY, endY, dist / 2, mul)
+                        centerX = curvePair.first
+                        centerY = curvePair.second
+                    }
+                    else
+                        p.add(Arrow(edge.startX, edge.startY, edge.endX, edge.endY, 10.0))
+
                     val weight = Label(g.getMatrix()[a][b].toString())
                     weight.setStyle("-fx-font-smoothing-type: lcd; -fx-fill: white; -fx-font-size: 15pt;")
-                    weight.layoutX = (edge.startX + edge.endX) / 2
-                    weight.layoutY = (edge.startY + edge.endY) / 2
+                    weight.layoutX = centerX + if (a == b) 25.0 * 2.2 else 0.0
+                    weight.layoutY = centerY - if (a == b) 15.0 else 0.0
+                  //  weight.background = Background(BackgroundFill(Color.rgb(223, 223, 223), CornerRadii(5.0), Insets(-5.0)))
                     p.add(weight)
                 }
             }
         }
-        for (e in vwc) {
+        for (e in vwc){
             p.add(paintVertex(e.first, e.second - 25.0, e.third - 25.0))
         }
         // p.setStyle("-fx-border-color: black");
