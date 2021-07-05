@@ -82,6 +82,20 @@ fun returnPoint(x1: Double, x2: Double, y1: Double, y2: Double, distance: Double
     var y3 = k * x3 + b
     return Pair(x3, y3)
 }
+fun drawLoop(x: Double, y: Double, angle: Double = 0.0): Pane{
+    var p = Pane()
+    val xpar = 30
+    val ypar = 15
+    var x = x + 25.0
+    p.add(Line(x, y, x + xpar, y - ypar))
+    p.add(Line(x, y, x + xpar, y + ypar))
+    var cc = CubicCurve(x + xpar, y + ypar, x + 2*xpar, y + ypar + 10, x + 2 *xpar, y - ypar - 10, x + xpar, y - ypar)
+    cc.fill = Color.TRANSPARENT
+    cc.stroke = Color.BLACK
+    p.add(cc)
+    p.add(Arrow(x + xpar, y + ypar, x, y, 10.0, true))
+    return p
+}
 class Painter{
 
     private fun paintVertex(v: Vertex, x: Double, y: Double, rad: Double = 25.0): StackPane {
@@ -128,6 +142,10 @@ class Painter{
                     var centerX = (edge.endX + edge.startX) / 2
                     var centerY = (edge.endY + edge.startY) / 2
                     val dist = 45.0
+                    if (a == b){
+                        p.add(drawLoop(startX, startY))
+                    }
+                    else
                     if (g.getMatrix()[b][a] > 0) {
                         val mul = if (b > a) -1 else 1
                         var curvePair = returnPoint(startX, endX, startY, endY, dist, mul)
@@ -155,8 +173,8 @@ class Painter{
 
                     val weight = Label(g.getMatrix()[a][b].toString())
                     weight.setStyle("-fx-font-smoothing-type: lcd; -fx-fill: white; -fx-font-size: 15pt;")
-                    weight.layoutX = centerX
-                    weight.layoutY = centerY
+                    weight.layoutX = centerX + if (a == b) 25.0 * 2.2 else 0.0
+                    weight.layoutY = centerY - if (a == b) 15.0 else 0.0
                   //  weight.background = Background(BackgroundFill(Color.rgb(223, 223, 223), CornerRadii(5.0), Insets(-5.0)))
                     p.add(weight)
                 }
