@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a93d3f00-da5e-4788-b7c5-bba8117137dd" name="Default Changelist" comment="">
+    <list default="true" id="a93d3f00-da5e-4788-b7c5-bba8117137dd" name="Default Changelist" comment="add_random_graph">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/graph/Graph.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/graph/Graph.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/view/MainView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/view/MainView.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -346,7 +344,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="algorithm" />
+                        <option value="main" />
                       </list>
                     </value>
                   </entry>
