@@ -16,8 +16,8 @@
     <AnchorPane prefHeight="1000" prefWidth="1200">
         <MenuBar prefHeight="20" prefWidth="1200">
             <Menu mnemonicParsing="false" text="Построить граф">
-                <MenuItem mnemonicParsing="false" text="Случайный"/>
-                <MenuItem mnemonicParsing="false" text="Из файла"/>
+                <MenuItem fx:id = "randomGraphBuildButton" mnemonicParsing="false" text="Случайный"/>
+                <MenuItem fx:id = "buildGraphFromFileButton" mnemonicParsing="false" text="Из файла"/>
             </Menu>
             <Menu mnemonicParsing="false" text="Добивить"/>
             <Menu mnemonicParsing="false" text="Удалить"/>
