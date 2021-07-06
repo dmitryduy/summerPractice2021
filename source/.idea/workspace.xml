@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a93d3f00-da5e-4788-b7c5-bba8117137dd" name="Default Changelist" comment="Algorithm implementation + part of intermediate">
+    <list default="true" id="a93d3f00-da5e-4788-b7c5-bba8117137dd" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/source.iml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/dijkstra/Dijkstra.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/dijkstra/Dijkstra.kt" afterDir="false" />
