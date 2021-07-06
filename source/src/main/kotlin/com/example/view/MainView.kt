@@ -2,15 +2,14 @@ package com.example.view
 
 import com.example.dijkstra.*
 import com.example.graph.*
+import com.example.graphcontroller.GraphController
 import tornadofx.*
 import com.example.painter.*
 import javafx.scene.control.*
 
 import javafx.scene.layout.AnchorPane
-import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
 import javafx.scene.text.Text
-import java.util.*
 import kotlin.collections.ArrayList
 
 
@@ -34,6 +33,8 @@ class MainView : View("Алгоритм Дейкстры") {
     private val foundPathLabel: Label by fxid("foundPathLabel")
     private val foundPathScroll: ScrollPane by fxid("foundPathScroll")
     private val currentActionLabel: Label by fxid("currentActionLabel")
+    private val randomGraphBuildButton: MenuItem by fxid("randomGraphBuildButton")
+    private val buildGraphFromFileButton: MenuItem by fxid("buildGraphFromFileButton")
     private lateinit var temp: DijkstraSteps
     private var arrayPaths: ArrayList<String> = ArrayList()//пути рассчитываются один раз
     private var countPaths: Int = 0//количество путей на текущем шаге
@@ -42,18 +43,6 @@ class MainView : View("Алгоритм Дейкстры") {
 
     init {
 
-        var g = Graph(graphType = GraphType.RandomGraph)
-        var p = Painter()
-
-        val a = Dijkstra()
-        temp = a.makeAlgorithm(g, g.getVertices()[0])//возвращает Dijkstrasteps()
-        g.getVertices().forEach { vertexes.add(it) }
-        arrayPaths = getPaths(temp)
-
-
-        val graphPane = p.paintGraph(g)
-        graphPane.layoutY = 20.0
-        root.add(graphPane)
 
         setButtonAnimation(leftButton, Pair(70.0, 51.0), Pair(306.0, 631.0), Pair(72.0, 53.0), Pair(305.0, 630.0))
         setButtonAnimation(rightButton, Pair(70.0, 51.0), Pair(493.0, 631.0), Pair(72.0, 53.0), Pair(492.0, 630.0))
@@ -84,11 +73,23 @@ class MainView : View("Алгоритм Дейкстры") {
         }
 
         startByStep.setOnAction {
-            activateButtons()
-            currentStep++
-            changeInterface(currentStep)
+            if (!isByStepStarted) {
+                isByStepStarted = true
+                activateButtons()
+                currentStep++
+                changeInterface(currentStep)
+            }
+
         }
 
+        buildGraphFromFileButton.setOnAction {
+            val graph = GraphController()
+            buildGraph(graph.buildFromFile())
+        }
+
+        randomGraphBuildButton.setOnAction {
+           buildGraph(Graph(GraphType.RandomGraph))
+        }
 
     }
 
@@ -158,17 +159,26 @@ class MainView : View("Алгоритм Дейкстры") {
     }
 
     private fun setQueue(currentStepInfo: DijkstraStep, sortable: Boolean = false) {
-        val endQueue: Any
-        endQueue = if (!sortable) currentStepInfo.getQueue()
-        else currentStepInfo.getQueue().sortedWith(MyComparator())
-
         var actionText: String = "Очередь: "
+        if (!sortable) {
+            val queue = currentStepInfo.getQueue()
+            queue.forEach {
+                actionText += if (it.second == Integer.MAX_VALUE) "(${it.first.getValue()} inf)"
+                else "(${it.first.getValue()} ${it.second})"
+            }
+        }
+        else {
+            val tmp = currentStepInfo.getQueue()
+            val queue = tmp.sortedWith(MyComparator())
+            queue.forEach {
+                actionText += if (it.second == Integer.MAX_VALUE) "(${it.first.getValue()} inf)"
+                else "(${it.first.getValue()} ${it.second})"
+            }
+        }
+
 
         // как будет выглядеть текст очереди
-        endQueue.forEach {
-            actionText += if (it.second == Integer.MAX_VALUE) "(${it.first.getValue()} inf)"
-            else "(${it.first.getValue()} ${it.second})"
-        }
+
         currentOrderLabel.text = actionText
     }
 
@@ -246,6 +256,22 @@ class MainView : View("Алгоритм Дейкстры") {
         rightButton.isDisable = false
         leftButton.isDisable = false
         rect.isDisable = false
+    }
+
+    private fun buildGraph(graph: Graph?) {
+
+        if (graph != null) {
+            val a = Dijkstra()
+            var p = Painter()
+            temp = a.makeAlgorithm(graph, graph.getVertices()[0])//возвращает Dijkstrasteps()
+            graph.getVertices().forEach { vertexes.add(it) }
+            arrayPaths = getPaths(temp)
+
+            val graphPane = p.paintGraph(graph)
+            graphPane.layoutY = 20.0
+            root.add(graphPane)
+        }
+
     }
 }
 

@@ -44,28 +44,31 @@ class Graph(graphType: GraphType = GraphType.CommonGraph) {
         }*/
         //generate random graph
         //  val numberOfVertices: Int = Random.nextInt(4, 10)
-        val numberOfVertices: Int = Random.nextInt(4, 10)
-        //val numberOfEdges: Int = Random.nextInt(numberOfVertices - 1, numberOfVertices * (numberOfVertices - 1))
-        for (i in 1..numberOfVertices) {
-            addVertex(('A' + i - 1).toString())
-        }
-        for (i in 0..numberOfVertices - 1) {
-            var k = 0
-            if (numberOfVertices > 6) {
-                k = Random.nextInt(2, numberOfVertices - 4) / 2
-            } else {
-                k = Random.nextInt(2, numberOfVertices - 1)
+        if (graphType == GraphType.RandomGraph) {
+            val numberOfVertices: Int = Random.nextInt(4, 10)
+            //val numberOfEdges: Int = Random.nextInt(numberOfVertices - 1, numberOfVertices * (numberOfVertices - 1))
+            for (i in 1..numberOfVertices) {
+                addVertex(('A' + i - 1).toString())
             }
-            for (j in 0..k) {
-                var n = Random.nextInt(vertices.size)
-                if (i != n) {
-                    addEdge(vertices[i], vertices[n], Random.nextInt(1, 6))
+            for (i in 0..numberOfVertices - 1) {
+                var k = 0
+                if (numberOfVertices > 6) {
+                    k = Random.nextInt(2, numberOfVertices - 4) / 2
                 } else {
-                    n = Random.nextInt(vertices.size)
-                    addEdge(vertices[i], vertices[n], Random.nextInt(1, 6))
+                    k = Random.nextInt(2, numberOfVertices - 1)
+                }
+                for (j in 0..k) {
+                    var n = Random.nextInt(vertices.size)
+                    if (i != n) {
+                        addEdge(vertices[i], vertices[n], Random.nextInt(1, 6))
+                    } else {
+                        n = Random.nextInt(vertices.size)
+                        addEdge(vertices[i], vertices[n], Random.nextInt(1, 6))
+                    }
                 }
             }
         }
+
     }
 
     fun getMatrix(): ArrayList<ArrayList<Int>> {
