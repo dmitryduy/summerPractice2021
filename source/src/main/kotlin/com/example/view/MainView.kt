@@ -4,6 +4,7 @@ import com.example.dijkstra.*
 import com.example.graph.*
 import tornadofx.*
 import com.example.painter.*
+
 import javafx.scene.control.Button
 import javafx.scene.control.Label
 import javafx.scene.control.ScrollPane
@@ -11,24 +12,12 @@ import javafx.scene.control.TableView
 import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.VBox
 import javafx.scene.text.Text
+import java.util.*
 
 
-class Row(val array: Array<Any>)
+class Row(val array: List<Any>)
 
-private val columns = listOf(
-    Row(arrayOf("∞", "∞", "∞", 0, "∞", "∞", "∞", "∞", "∞", "∞", "∞", "∞")),
-    Row(arrayOf(2, "∞", "∞", "", 9, "∞", 2, "∞", "∞", "∞", "∞", "∞")),
-    Row(arrayOf("", 5, "∞", "", 6, "∞", 2, "∞", "∞", "∞", "∞", "∞")),
-    Row(arrayOf("", 5, "∞", "", 6, "∞", "", 12, "∞", "∞", 8, "∞")),
-    Row(arrayOf("", "", 10, "", 6, "∞", "", 12, "∞", "∞", 8, "∞")),
-    Row(arrayOf("", "", 7, "", "", 9, "", 12, "∞", "∞", 8, "∞")),
-    Row(arrayOf("", "", "", "", "", 9, "", 12, "∞", "∞", 8, "∞")),
-    Row(arrayOf("", "", "", "", "", 9, "", 12, 9, 14, "", 11)),
-    Row(arrayOf("", "", "", "", "", "", "", 12, 9, 14, "", 11)),
-    Row(arrayOf("", "", "", "", "", "", "", 12, "", 14, "", 11)),
-    Row(arrayOf("", "", "", "", "", "", "", 12, "", 14, "", "")),
-    Row(arrayOf("", "", "", "", "", "", "", "", "", 14, "", "")),
-).asObservable()
+
 
 val vertexes = observableListOf<String>("A", "B", "C", "D", "E", "F", "J", "H", "I", "J", "K", "L")
 
@@ -59,11 +48,17 @@ class MainView : View("Алгоритм Дейкстры") {
     private val rect: Button by fxid("rect")
     private val rightButton: Button by fxid("rightButton")
     private val leftButton: Button by fxid("leftButton")
+    private lateinit var temp: DijkstraSteps
+    private var currentStep = -1
 
 
     init {
+
         var g = Graph(graphType = GraphType.RandomGraph)
         var p = Painter()
+
+        val a = Dijkstra()
+        temp = a.makeAlgorithm(g, g.getVertices()[3])//возвращает Dijkstrasteps()
 
         val graphPane = p.paintGraph(g)
         graphPane.layoutY = 20.0
@@ -73,16 +68,22 @@ class MainView : View("Алгоритм Дейкстры") {
         setButtonAnimation(rightButton, Pair(70.0, 51.0), Pair(493.0, 631.0), Pair(72.0, 53.0), Pair(492.0, 630.0))
         setButtonAnimation(rect, Pair(70.0, 51.0), Pair(398.0, 631.0), Pair(72.0, 53.0), Pair(397.0, 630.0))
 
-        currentOrderLabel.text = "Очередь: ${order.joinToString(", ")}"
-        currentActionText.text = currentAction;
-
-        foundPaths.forEach {
-            vbox.add(label(it))
+        rightButton.setOnMouseClicked {
+            if (currentStep < temp.dijkstraSteps.size - 1)
+                currentStep++
+            changeInterface(currentStep)
         }
 
-        tableContainer.add(createTable())
+        leftButton.setOnMouseClicked {
+            if (currentStep > 0)
+                currentStep--
+            changeInterface(currentStep)
+        }
+
+
+
         //пример работы
-        val a = Dijkstra()
+        /*val a = Dijkstra()
         val temp = a.makeAlgorithm(g, g.getVertices()[3])//возвращает Dijkstrasteps()
         val test = temp.dijkstraSteps
         for (i in test) {
@@ -159,11 +160,34 @@ class MainView : View("Алгоритм Дейкстры") {
             }
             println("\n")
         }//проходим по шагам и обновляем в зависимости от шага
-        println("end")
+        println("end")*/
     }
 
-    private fun createTable(): TableView<Row> {
-        return tableview(columns) {
+    private fun updateEveryStep(currentStepInfo: DijkstraStep) {
+        setQueue(currentStepInfo)
+
+        val paths = currentStepInfo.getPaths()
+        vbox.clear()
+        paths.forEach {
+            vbox.add(label(it))
+        }
+        setTable(currentStepInfo)
+    }
+
+    private fun setTable(currentStepInfo: DijkstraStep){
+        val columns = observableListOf<Row>()
+        val table = currentStepInfo.getTable()
+        table.forEach{ row ->
+            val currentRow = mutableListOf<Any>()
+            row.forEach {item->
+                // как будет выглядеть конкретная клетка в таблице
+                if (item.first == null) currentRow.add("inf")
+                else currentRow.add(item)
+            }
+            columns.add(Row(currentRow))
+        }
+
+        tableContainer.add(tableview(columns) {
             maxHeight = 498.0
             maxWidth = 598.0
             style = "-fx-background-color: none;"
@@ -176,7 +200,22 @@ class MainView : View("Алгоритм Дейкстры") {
                     isSortable = false
                 }
             }
+        })
+    }
+
+    private fun setQueue(currentStepInfo: DijkstraStep, sortable: Boolean = false) {
+        val endQueue: Any
+        endQueue = if (!sortable) currentStepInfo.getQueue()
+        else currentStepInfo.getQueue().sortedWith(MyComparator())
+
+        var actionText: String = "Очередь: "
+
+        // как будет выглядеть текст очереди
+        endQueue.forEach {
+            actionText += if (it.second == Integer.MAX_VALUE) "(${it.first.getValue()} inf)"
+            else "(${it.first.getValue()} ${it.second})"
         }
+        currentOrderLabel.text = actionText
     }
 
     private fun setButtonAnimation(
@@ -193,6 +232,60 @@ class MainView : View("Алгоритм Дейкстры") {
             button.layoutX = releasedLayout.first
             button.layoutY = releasedLayout.second
         }
+    }
+
+    private fun changeInterface(currentStep: Int) {
+        val currentStepInfo = temp.dijkstraSteps[currentStep]
+
+        when (currentStepInfo.getState()) {
+            DijkstraState.Start -> initInterface(currentStepInfo)
+
+            DijkstraState.VertexProcessing -> updateVertex(currentStepInfo)
+
+            DijkstraState.UpdatedPath -> updatePath(currentStepInfo)
+
+            DijkstraState.UpdatedQueue -> updateQueue(currentStepInfo)
+
+            DijkstraState.UpdatedTable -> updateTable(currentStepInfo)
+        }
+    }
+
+    private fun initInterface(currentStepInfo: DijkstraStep) {
+        updateEveryStep(currentStepInfo)
+        // Устанавливает текущее действие, в данном случае start
+        currentActionText.text = "Start"
+
+        setQueue(currentStepInfo)
+
+        val currentVertex = currentStepInfo.getCurrVertex()
+        // к текущему действию прибавляется запись о начальной вершине
+        currentActionText.text += "\nStartVertex: $currentVertex"
+    }
+
+    private fun updateVertex(currentStepInfo: DijkstraStep) {
+        updateEveryStep(currentStepInfo)
+        val currentVertex = currentStepInfo.getCurrVertex()
+        // обновляется текущее действие
+        currentActionText.text = "CurrVertex: ${currentVertex.getValue()}"
+    }
+
+    private fun updatePath(currentStepInfo: DijkstraStep) {
+        updateEveryStep(currentStepInfo)
+        // обновляется текущее действие
+        currentActionText.text = "UpdatedPath"
+    }
+
+    private fun updateQueue(currentStepInfo: DijkstraStep) {
+        updateEveryStep(currentStepInfo)
+        // обновляется текущее действие
+        currentActionText.text = "UpdatedQueue"
+        setQueue(currentStepInfo, true)
+    }
+
+    private fun updateTable(currentStepInfo: DijkstraStep) {
+        updateEveryStep(currentStepInfo)
+        // обновляется текущее действие
+        currentActionText.text = "UpdatedTable"
     }
 }
 
