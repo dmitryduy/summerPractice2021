@@ -17,7 +17,7 @@ import kotlin.collections.ArrayList
 class Row(val array: List<Any>)
 
 
-val vertexes = observableListOf<String>()
+val vertexes = observableListOf<Vertex>()
 var isByStepStarted = false
 
 
@@ -46,10 +46,10 @@ class MainView : View("Алгоритм Дейкстры") {
         var p = Painter()
 
         val a = Dijkstra()
-        temp = a.makeAlgorithm(g, g.getVertices()[3])//возвращает Dijkstrasteps()
+        temp = a.makeAlgorithm(g, g.getVertices()[0])//возвращает Dijkstrasteps()
+        g.getVertices().forEach { vertexes.add(it) }
         arrayPaths = getPaths(temp)
 
-        g.getVertices().forEach { vertexes.add(it.toString()) }
 
         val graphPane = p.paintGraph(g)
         graphPane.layoutY = 20.0
@@ -91,13 +91,12 @@ class MainView : View("Алгоритм Дейкстры") {
 
 
     }
+
     private fun getPaths(dijkstraSteps: DijkstraSteps): ArrayList<String> {
         arrayPaths.clear()
         val vertexs: ArrayList<Vertex> = ArrayList<Vertex>()
-        for (i in 0..11) {
-            vertexs.add(Vertex("" + ('A' + i), i))
-        }
-        vertexs.forEach {
+
+        vertexes.forEach {
             if (it.getValue() != "D") {
                 val curr = dijkstraSteps.getResult().getPath(it)
                 if (curr != "=") {
@@ -112,6 +111,7 @@ class MainView : View("Алгоритм Дейкстры") {
         }
         return arrayPaths
     }
+
     private fun updateEveryStep(currentStepInfo: DijkstraStep) {
         setQueue(currentStepInfo)
 
@@ -147,7 +147,7 @@ class MainView : View("Алгоритм Дейкстры") {
             style = "-fx-background-color: none;"
             selectionModel = null
             vertexes.forEachIndexed { index, it ->
-                readonlyColumn(it, Row::array) {
+                readonlyColumn(it.getValue(), Row::array) {
 
                     value {
                         it.value.array[index]
