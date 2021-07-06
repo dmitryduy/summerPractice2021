@@ -4,12 +4,10 @@ import com.example.dijkstra.*
 import com.example.graph.*
 import tornadofx.*
 import com.example.painter.*
+import javafx.scene.control.*
 
-import javafx.scene.control.Button
-import javafx.scene.control.Label
-import javafx.scene.control.ScrollPane
-import javafx.scene.control.TableView
 import javafx.scene.layout.AnchorPane
+import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
 import javafx.scene.text.Text
 import java.util.*
@@ -18,24 +16,8 @@ import java.util.*
 class Row(val array: List<Any>)
 
 
-val vertexes = observableListOf<String>("A", "B", "C", "D", "E", "F", "J", "H", "I", "J", "K", "L")
-
-val foundPaths = observableListOf<String>(
-    "A->B: AB",
-    "A->C: ABC",
-    "A->E: ABCDE",
-    "A->B: AB",
-    "A->C: ABC",
-    "A->E: ABCDE",
-    "A->B: AB",
-    "A->C: ABC",
-    "A->E: ABCDE",
-    "A->B: AB",
-    "A->C: ABC",
-    "A->E: ABCDE"
-)
-val currentAction = "Какое-то действие, которое проиходит прямо сейчас"
-val order = observableListOf<String>("A", "B", "C", "D", "E")
+val vertexes = observableListOf<String>()
+var isByStepStarted = false
 
 
 class MainView : View("Алгоритм Дейкстры") {
@@ -47,6 +29,10 @@ class MainView : View("Алгоритм Дейкстры") {
     private val rect: Button by fxid("rect")
     private val rightButton: Button by fxid("rightButton")
     private val leftButton: Button by fxid("leftButton")
+    private val startByStep: MenuItem by fxid("startByStep")
+    private val foundPathLabel: Label by fxid("foundPathLabel")
+    private val foundPathScroll: ScrollPane by fxid("foundPathScroll")
+    private val currentActionLabel: Label by fxid("currentActionLabel")
     private lateinit var temp: DijkstraSteps
     private var currentStep = -1
 
@@ -59,6 +45,8 @@ class MainView : View("Алгоритм Дейкстры") {
         val a = Dijkstra()
         temp = a.makeAlgorithm(g, g.getVertices()[3])//возвращает Dijkstrasteps()
 
+        g.getVertices().forEach { vertexes.add(it.toString()) }
+
         val graphPane = p.paintGraph(g)
         graphPane.layoutY = 20.0
         root.add(graphPane)
@@ -68,97 +56,30 @@ class MainView : View("Алгоритм Дейкстры") {
         setButtonAnimation(rect, Pair(70.0, 51.0), Pair(398.0, 631.0), Pair(72.0, 53.0), Pair(397.0, 630.0))
 
         rightButton.setOnMouseClicked {
+
             if (currentStep < temp.dijkstraSteps.size - 1)
                 currentStep++
             changeInterface(currentStep)
+
+
         }
 
         leftButton.setOnMouseClicked {
+
             if (currentStep > 0)
                 currentStep--
+            changeInterface(currentStep)
+
+
+        }
+
+        startByStep.setOnAction {
+            activateButtons()
+            currentStep++
             changeInterface(currentStep)
         }
 
 
-        //пример работы
-        /*val a = Dijkstra()
-        val temp = a.makeAlgorithm(g, g.getVertices()[3])//возвращает Dijkstrasteps()
-        val test = temp.dijkstraSteps
-        for (i in test) {
-            when (i.getState()) {
-                DijkstraState.Start -> {
-                    print("Start")
-                    val table = i.getTable()
-                    for (j in table) {
-                        for (k in j) {
-                            if (k.first == null) {
-                                print("" + "inf" + " ")
-                            } else {
-                                print("" + k + " ")
-                            }
-                        }
-                        println()
-                    }
-                    val queue = i.getQueue()
-                    for (i in queue) {
-                        if (i.second == Integer.MAX_VALUE) {
-                            print("(" + i.first.getValue() + " " + "inf" + ") ")
-                        } else {
-                            print("(" + i.first.getValue() + " " + i.second + ") ")
-                        }
-                    }
-
-                    val currVertex = i.getCurrVertex()
-                    println("")
-                    print("StartVertex:" + currVertex.getValue())//типа здесь нужна нарисовать вершины
-                }
-                DijkstraState.VertexProcessing -> {//здесь нужно подсветить ребра
-                    println("VertexProcessing")
-                    val currVertex = i.getCurrVertex()
-                    print("CurrVertex:" + currVertex.getValue())
-                }
-                DijkstraState.UpdatedPath -> {
-                    println("UpdatedPath")
-                    var paths = i.getPaths()
-                    for (i in paths) {
-                        println(i)
-                    }
-
-                }
-                DijkstraState.UpdatedQueue -> {
-                    println("UpdatedQueue")
-                    val queue = i.getQueue()
-                    val sortedQueue = queue.sortedWith(MyComparator())//нужно отсортировать
-                    for (i in sortedQueue) {
-                        if (i.second == Integer.MAX_VALUE) {
-                            print("(" + i.first.getValue() + " " + "inf" + ") ")
-                        } else {
-                            print("(" + i.first.getValue() + " " + i.second + ") ")
-                        }
-                    }
-                }
-                DijkstraState.UpdatedTable -> {
-                    println("UpdatedTable")
-                    val table = i.getTable()
-                    for (j in table) {
-                        for (k in j) {
-                            //  print(k)
-                            if (k.first == null && k.second == Integer.MAX_VALUE) {
-                                print("" + "inf" + " ")
-                            } else if (k.first != null) {
-                                print("" + k.second + " ")
-                            } else {
-                                print("" + "--" + " ")
-                            }
-                        }
-                        println()
-                    }
-                }
-                else -> print("\n")
-            }
-            println("\n")
-        }//проходим по шагам и обновляем в зависимости от шага
-        println("end")*/
     }
 
     private fun updateEveryStep(currentStepInfo: DijkstraStep) {
@@ -183,7 +104,7 @@ class MainView : View("Алгоритм Дейкстры") {
                 else if (item.first == null) {
                     currentRow.add("--")
                 } else {
-                    currentRow.add(item)
+                    currentRow.add("${item.second}(${item.first})")
                 }
             }
             columns.add(Row(currentRow))
@@ -194,11 +115,14 @@ class MainView : View("Алгоритм Дейкстры") {
             maxWidth = 598.0
             style = "-fx-background-color: none;"
             selectionModel = null
-            vertexes.forEachIndexed{ index, it ->
+            vertexes.forEachIndexed { index, it ->
                 readonlyColumn(it, Row::array) {
-                        value { it.value.array[index] }
+
+                    value {
+                        it.value.array[index]
+                    }
                     isResizable = false
-                    prefWidth = 50.0
+                    prefWidth = 70.0
                     isSortable = false
                 }
             }
@@ -288,6 +212,12 @@ class MainView : View("Алгоритм Дейкстры") {
         updateEveryStep(currentStepInfo)
         // обновляется текущее действие
         currentActionText.text = "UpdatedTable"
+    }
+
+    private fun activateButtons() {
+        rightButton.isDisable = false
+        leftButton.isDisable = false
+        rect.isDisable = false
     }
 }
 

@@ -22,23 +22,23 @@
             <Menu mnemonicParsing="false" text="Добивить"/>
             <Menu mnemonicParsing="false" text="Удалить"/>
             <Menu mnemonicParsing="false" text="Запустить алгоритм">
-                <MenuItem mnemonicParsing="false" text="По шагам"/>
+                <MenuItem fx:id="startByStep" mnemonicParsing="false" text="По шагам"/>
                 <MenuItem mnemonicParsing="false" text="Автоматически"/>
             </Menu>
         </MenuBar>
         <ScrollPane style="-fx-background-color: none;" fx:id="tableContainer" layoutX="580" layoutY="35" prefHeight="500" prefWidth="600">
         </ScrollPane>
         <Label fx:id="currentOrder" layoutX="15" layoutY="555" prefHeight="25" prefWidth="580"/>
-        <Label layoutX="15" layoutY="600" prefHeight="25" prefWidth="200" style="-fx-font-weight: bold;"
+        <Label fx:id="currentActionLabel" layoutX="15" layoutY="600" prefHeight="25" prefWidth="200" style="-fx-font-weight: bold;"
                text="Текущее действие:"/>
         <Text fx:id="currentAction" layoutX="15" layoutY="655" wrappingWidth="250"/>
-        <Button fx:id="rect" layoutX="397.0" layoutY="630.0" prefHeight="53.0" prefWidth="72.0" style="-fx-background-color: #f37b7f;" />
-        <Button fx:id="rightButton" layoutX="492.0" layoutY="630.0" prefHeight="53.0" prefWidth="72.0" style= "-fx-background-color: #3F48CC;-fx-shape: 'M32 30 L32 34 L32 42 L42 36'"/>
-        <Button fx:id="leftButton" layoutX="305.0" layoutY="630.0" prefHeight="53.0" prefWidth="72.0" style="-fx-background-color: #3F48CC;-fx-shape: 'M32 30 L32 34 L32 42 L22 36'"/>
+        <Button disable="true" fx:id="rect" layoutX="397.0" layoutY="630.0" prefHeight="53.0" prefWidth="72.0" style="-fx-background-color: #f37b7f;" />
+        <Button disable="true" fx:id="rightButton" layoutX="492.0" layoutY="630.0" prefHeight="53.0" prefWidth="72.0" style= "-fx-background-color: #3F48CC;-fx-shape: 'M32 30 L32 34 L32 42 L42 36'"/>
+        <Button disable="true" fx:id="leftButton" layoutX="305.0" layoutY="630.0" prefHeight="53.0" prefWidth="72.0" style="-fx-background-color: #3F48CC;-fx-shape: 'M32 30 L32 34 L32 42 L22 36'"/>
 
-        <Label layoutX="660" layoutY="500" prefHeight="18" prefWidth="260" style="-fx-font-weight: bold;"
+        <Label  fx:id="foundPathLabel" layoutX="660" layoutY="500" prefHeight="18" prefWidth="260" style="-fx-font-weight: bold;"
                text="Найденные пути"/>
-        <ScrollPane layoutX="659" layoutY="537" prefHeight="195" prefWidth="378.0">
+        <ScrollPane  fx:id="foundPathScroll" layoutX="659" layoutY="537" prefHeight="195" prefWidth="378.0">
             <VBox prefHeight="190" prefWidth="355" fx:id="foundPathsContainer"/>
         </ScrollPane>
     </AnchorPane>
