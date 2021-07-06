@@ -8,10 +8,6 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/dijkstra/Dijkstra.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/dijkstra/Dijkstra.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/dijkstra/DijkstraStep.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/dijkstra/DijkstraStep.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/dijkstra/DijkstraSteps.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/dijkstra/DijkstraSteps.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/graph/Graph.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/graph/Graph.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/view/MainView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/view/MainView.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/kotlin/com/example/graph/GraphTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/kotlin/com/example/graph/GraphTest.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -302,7 +298,14 @@
       <option name="project" value="LOCAL" />
       <updated>1625508069981</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Algorithm implementation + part of intermediate">
+      <created>1625567109029</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1625567109029</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -334,13 +337,24 @@
     <MESSAGE value="fix_test" />
     <MESSAGE value="fix_generator" />
     <MESSAGE value="add_blank" />
-    <option name="LAST_COMMIT_MESSAGE" value="add_blank" />
+    <MESSAGE value="Algorithm implementation + part of intermediate" />
+    <option name="LAST_COMMIT_MESSAGE" value="Algorithm implementation + part of intermediate" />
   </component>
   <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/src/main/kotlin/com/example/view/MainView.kt</url>
+          <line>151</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
     <pin-to-top-manager>
       <pinned-members>
         <PinnedItemInfo parentTag="com.example.dijkstra.DijkstraStep" memberName="queue" />
         <PinnedItemInfo parentTag="com.example.graph.Graph" memberName="edges" />
+        <PinnedItemInfo parentTag="com.example.graph.Vertex" memberName="index" />
       </pinned-members>
     </pin-to-top-manager>
     <watches-manager>

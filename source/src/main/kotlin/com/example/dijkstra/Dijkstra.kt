@@ -36,9 +36,9 @@ class Dijkstra {
 
     private fun initDijkstraSteps(queue: PriorityQueue<Pair<Vertex, Int>>) {
         val temp = ArrayList<Pair<Vertex?, Int>>()
-        for (i in queue) {
-            if (i == queue.peek()) {
-                temp.add(Pair(i.first, 0))
+        for (i in 0..queue.size - 1) {
+            if (i == queue.peek().first.getIndex()) {
+                temp.add(Pair(queue.peek().first, 0))
             } else {
                 temp.add(Pair(null, Integer.MAX_VALUE))
             }
@@ -88,23 +88,23 @@ class Dijkstra {
         dijkstraSteps.addStep(DijkstraStep(DijkstraState.UpdatedQueue, queueRes, new.getTable(), new.getCurrVertex()))
     }
 
-    private fun addStepUpdatedTable(newVertices: ArrayList<Pair<Vertex?, Int>>) {
+    private fun addStepUpdatedTable(
+        indexesOfInf: ArrayList<Int>,
+        indexesOfNull: ArrayList<Int>,
+        values: ArrayList<Pair<Vertex, Int>>
+    ) {
         val new: DijkstraStep = dijkstraSteps.next().clone() as DijkstraStep
         val prevTable = new.getTable().clone() as ArrayList<ArrayList<Pair<Vertex?, Int>>>
-        val newLine = ArrayList<Pair<Vertex?, Int>>()
-        for (i in newVertices) {
-            if (i.first == null) {
-                newLine.add(Pair(null, Integer.MAX_VALUE))
-            } else {
-                newLine.add(i)
-            }
-        }
+        val newLine = new.getLine(
+            indexesOfInf, indexesOfNull,
+            values
+        )
         prevTable.add(newLine)
         dijkstraSteps.addStep(
             DijkstraStep(
                 DijkstraState.UpdatedTable,
                 new.getQueue(),
-                new.getTable(),
+                prevTable,
                 new.getCurrVertex()
             )
         )
@@ -126,40 +126,42 @@ class Dijkstra {
             var curr = queue.poll()
             addStepVertexProcessing(curr.first)
             if (curr == null) break
-            val newLine = ArrayList<Pair<Vertex?, Int>>()
+            var indexesOfInf = ArrayList<Int>()
+            var indexesOfNull = ArrayList<Int>()
+            var values = ArrayList<Pair<Vertex, Int>>()
             for (j in 0..graph.getVertices().size - 1) {
-
-                if (curr.first.getIndex() == j) continue
+                if (curr.first.getIndex() == j) {
+                    indexesOfNull.add(j)
+                    values.add(Pair(Vertex("", -1), -1))
+                    continue
+                }
                 if (graph.getMatrix()[curr.first.getIndex()][j] > 0) {
-
                     val secondVertex = findElemInQueue(j, queue)
-
                     if (secondVertex != null) {
                         if (secondVertex.second > curr.second + graph.getMatrix()[curr.first.getIndex()][j]) {
-                            newLine.add(
-                                Pair(
-                                    curr.copy().first,
-                                    curr.second + graph.getMatrix()[curr.first.getIndex()][j]
-                                )
-                            )
+                            values.add(Pair(curr.first,curr.second + graph.getMatrix()[curr.first.getIndex()][j] ))
                             changeElemInQueue(
                                 queue,
                                 secondVertex.first,
                                 curr.second + graph.getMatrix()[curr.first.getIndex()][j]
                             )
                         } else {
-                            // newLine.add(Pair(curr.copy().first, curr.copy().second))
+                            values.add(Pair(Vertex("", -1), -1))
                         }
-
                     } else {
-                        newLine.add(Pair(null, 0))
+                        //null должен быть
+                        indexesOfNull.add(j)
+                        values.add(Pair(Vertex("", -1), -1))
                     }
 
                 } else {
+                    //оставить без изменения ("",-1),-1
+                    values.add(Pair(Vertex("", -1), -1))
+                    indexesOfInf.add(j)
 //                    newLine.add(dijkstraSteps.dijkstraSteps[dijkstraSteps.dijkstraSteps.size - 1].getTable()[dijkstraSteps.dijkstraSteps[dijkstraSteps.dijkstraSteps.size - 1].getTable().size - 1][j])
                 }
             }
-            addStepUpdatedTable(newLine)
+            addStepUpdatedTable(indexesOfInf, indexesOfNull, values)
             addStepUpdatedPath()
             result.add(curr)
         }
