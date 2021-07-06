@@ -28,7 +28,7 @@
         </MenuBar>
         <ScrollPane style="-fx-background-color: none;" fx:id="tableContainer" layoutX="580" layoutY="35" prefHeight="500" prefWidth="600">
         </ScrollPane>
-        <Label fx:id="currentOrder" layoutX="15" layoutY="555" prefHeight="25" prefWidth="580" text="Очередь: A, B, C"/>
+        <Label fx:id="currentOrder" layoutX="15" layoutY="555" prefHeight="25" prefWidth="580"/>
         <Label layoutX="15" layoutY="600" prefHeight="25" prefWidth="200" style="-fx-font-weight: bold;"
                text="Текущее действие:"/>
         <Text fx:id="currentAction" layoutX="15" layoutY="655" wrappingWidth="250"/>
