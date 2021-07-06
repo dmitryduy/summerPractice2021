@@ -11,6 +11,14 @@ class MyComparator : Comparator<Pair<Vertex, Int>> {
     }
 }
 
+class MyComparatorPaths : Comparator<String> {
+    override fun compare(o1: String, o2: String): Int {
+        val first = o1.substring(o1.indexOf('=') + 1).toInt()
+        val second = o2.substring(o2.indexOf('=') + 1).toInt()
+        return Integer.compare(first, second)
+    }
+}
+
 class Dijkstra {
     private val dijkstraSteps: DijkstraSteps = DijkstraSteps()
 
@@ -139,7 +147,7 @@ class Dijkstra {
                     val secondVertex = findElemInQueue(j, queue)
                     if (secondVertex != null) {
                         if (secondVertex.second > curr.second + graph.getMatrix()[curr.first.getIndex()][j]) {
-                            values.add(Pair(curr.first,curr.second + graph.getMatrix()[curr.first.getIndex()][j] ))
+                            values.add(Pair(curr.first, curr.second + graph.getMatrix()[curr.first.getIndex()][j]))
                             changeElemInQueue(
                                 queue,
                                 secondVertex.first,

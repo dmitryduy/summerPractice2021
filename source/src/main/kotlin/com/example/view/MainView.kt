@@ -13,12 +13,13 @@ import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.VBox
 import javafx.scene.text.Text
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class Row(val array: List<Any>)
 
 
-val vertexes = observableListOf<String>("A", "B", "C", "D", "E", "F", "J", "H", "I", "J", "K", "L")
+val vertexes = observableListOf<String>("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L")
 
 val foundPaths = observableListOf<String>(
     "A->B: AB",
@@ -48,7 +49,10 @@ class MainView : View("Алгоритм Дейкстры") {
     private val rightButton: Button by fxid("rightButton")
     private val leftButton: Button by fxid("leftButton")
     private lateinit var temp: DijkstraSteps
+    private var arrayPaths: ArrayList<String> = ArrayList()//пути рассчитываются один раз
+    private var countPaths: Int = 0//количество путей на текущем шаге
     private var currentStep = -1
+
 
 
     init {
@@ -58,7 +62,7 @@ class MainView : View("Алгоритм Дейкстры") {
 
         val a = Dijkstra()
         temp = a.makeAlgorithm(g, g.getVertices()[3])//возвращает Dijkstrasteps()
-
+        arrayPaths = getPaths(temp)
         val graphPane = p.paintGraph(g)
         graphPane.layoutY = 20.0
         root.add(graphPane)
@@ -70,12 +74,18 @@ class MainView : View("Алгоритм Дейкстры") {
         rightButton.setOnMouseClicked {
             if (currentStep < temp.dijkstraSteps.size - 1)
                 currentStep++
+            if (temp.dijkstraSteps[currentStep].getState() == DijkstraState.UpdatedPath && countPaths != arrayPaths.size) {
+                countPaths++
+            }
             changeInterface(currentStep)
         }
 
         leftButton.setOnMouseClicked {
             if (currentStep > 0)
                 currentStep--
+            if (temp.dijkstraSteps[currentStep + 1].getState() == DijkstraState.UpdatedPath && countPaths != 0) {
+                countPaths--
+            }
             changeInterface(currentStep)
         }
 
@@ -160,14 +170,34 @@ class MainView : View("Алгоритм Дейкстры") {
         }//проходим по шагам и обновляем в зависимости от шага
         println("end")*/
     }
-
+    private fun getPaths(dijkstraSteps: DijkstraSteps): ArrayList<String> {
+        arrayPaths.clear()
+        val vertexs: ArrayList<Vertex> = ArrayList<Vertex>()
+        for (i in 0..11) {
+            vertexs.add(Vertex("" + ('A' + i), i))
+        }
+        vertexs.forEach {
+            if (it.getValue() != "D") {
+                val curr = dijkstraSteps.getResult().getPath(it)
+                if (curr != "=") {
+                    arrayPaths.add(curr)
+                }
+            }
+        }
+        val sortedList = arrayPaths.sortedWith(MyComparatorPaths())
+        arrayPaths.clear()
+        for (i in sortedList) {
+            arrayPaths.add(i)
+        }
+        return arrayPaths
+    }
     private fun updateEveryStep(currentStepInfo: DijkstraStep) {
         setQueue(currentStepInfo)
-
-        val paths = currentStepInfo.getPaths()
         vbox.clear()
-        paths.forEach {
-            vbox.add(label(it))
+        if (countPaths != 0) {
+            for (i in 0..countPaths - 1) {
+                vbox.add(label(arrayPaths[i]))
+            }
         }
         setTable(currentStepInfo)
     }
@@ -194,9 +224,9 @@ class MainView : View("Алгоритм Дейкстры") {
             maxWidth = 598.0
             style = "-fx-background-color: none;"
             selectionModel = null
-            vertexes.forEachIndexed{ index, it ->
+            vertexes.forEachIndexed { index, it ->
                 readonlyColumn(it, Row::array) {
-                        value { it.value.array[index] }
+                    value { it.value.array[index] }
                     isResizable = false
                     prefWidth = 50.0
                     isSortable = false
