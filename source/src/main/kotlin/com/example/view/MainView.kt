@@ -18,7 +18,6 @@ import java.util.*
 class Row(val array: List<Any>)
 
 
-
 val vertexes = observableListOf<String>("A", "B", "C", "D", "E", "F", "J", "H", "I", "J", "K", "L")
 
 val foundPaths = observableListOf<String>(
@@ -79,7 +78,6 @@ class MainView : View("Алгоритм Дейкстры") {
                 currentStep--
             changeInterface(currentStep)
         }
-
 
 
         //пример работы
@@ -174,15 +172,19 @@ class MainView : View("Алгоритм Дейкстры") {
         setTable(currentStepInfo)
     }
 
-    private fun setTable(currentStepInfo: DijkstraStep){
+    private fun setTable(currentStepInfo: DijkstraStep) {
         val columns = observableListOf<Row>()
         val table = currentStepInfo.getTable()
-        table.forEach{ row ->
+        table.forEach { row ->
             val currentRow = mutableListOf<Any>()
-            row.forEach {item->
+            row.forEach { item ->
                 // как будет выглядеть конкретная клетка в таблице
-                if (item.first == null) currentRow.add("inf")
-                else currentRow.add(item)
+                if (item.first == null && item.second == Integer.MAX_VALUE) currentRow.add("inf")
+                else if (item.first == null) {
+                    currentRow.add("--")
+                } else {
+                    currentRow.add(item)
+                }
             }
             columns.add(Row(currentRow))
         }
@@ -192,9 +194,9 @@ class MainView : View("Алгоритм Дейкстры") {
             maxWidth = 598.0
             style = "-fx-background-color: none;"
             selectionModel = null
-            vertexes.forEachIndexed { index, it ->
+            vertexes.forEachIndexed{ index, it ->
                 readonlyColumn(it, Row::array) {
-                    value { it.value.array[index] }
+                        value { it.value.array[index] }
                     isResizable = false
                     prefWidth = 50.0
                     isSortable = false
