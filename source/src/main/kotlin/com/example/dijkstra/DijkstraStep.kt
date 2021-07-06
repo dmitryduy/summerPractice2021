@@ -83,7 +83,7 @@ class DijkstraStep(
     ): ArrayList<Pair<Vertex?, Int>> {
         var curr = ArrayList<Pair<Vertex?, Int>>()
         val prevLine = table[table.size - 1]
-        for (i in 0..11) {
+        for (i in 0..prevLine.size - 1) {
             //Если на предыдущей нулл, всегда нулл
             if (i in indexesOfNull || prevLine[i].first == null && prevLine[i].second == -1) {
                 curr.add(Pair(null, -1))

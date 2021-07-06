@@ -94,14 +94,11 @@ class MainView : View("Алгоритм Дейкстры") {
 
     private fun getPaths(dijkstraSteps: DijkstraSteps): ArrayList<String> {
         arrayPaths.clear()
-        val vertexs: ArrayList<Vertex> = ArrayList<Vertex>()
 
         vertexes.forEach {
-            if (it.getValue() != "D") {
-                val curr = dijkstraSteps.getResult().getPath(it)
-                if (curr != "=") {
-                    arrayPaths.add(curr)
-                }
+            val curr = dijkstraSteps.getResult().getPath(it)
+            if (curr != "=") {
+                arrayPaths.add(curr)
             }
         }
         val sortedList = arrayPaths.sortedWith(MyComparatorPaths())
