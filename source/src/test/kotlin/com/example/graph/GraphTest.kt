@@ -11,6 +11,32 @@ internal class GraphTest {
 
     @Test
     fun testInit() {
+        /*  val string = "0 4 0 0 0 0 0 0 0 0 0 0 " +//A
+                    "0 0 4 0 0 7 0 0 0 0 0 0 " +//B
+                    "0 0 0 0 0 0 7 0 0 0 0 0 " +//C
+                    "0 0 3 0 0 0 1 6 0 0 0 0 " +//D
+                    "7 0 0 0 0 0 0 0 4 0 0 0 " +//E
+                    "0 0 6 0 4 0 0 0 0 10 0 0 " +//F
+                    "0 0 0 1 0 8 0 9 0 9 7 6 " +//G
+                    "0 0 0 0 0 0 9 0 0 0 0 5 " +//H
+                    "0 0 0 0 4 4 0 0 0 9 0 0 " +//I
+                    "0 0 0 0 0 10 9 0 9 0 0 0 " +//J
+                    "0 0 0 0 0 0 0 0 0 0 0 0 " +//K
+                    "0 0 0 0 0 0 6 0 0 0 10 0" //L
+            //A+ B+ C+ D+ E+ F+ G+ H+ I+ J K L
+            val edges = string.split(" ")
+            val stringVer: String = "A B C D E F G H I J K L"
+
+            val vertices = stringVer.split(" ")
+
+            for (i in vertices) {
+                addVertex(i)
+            }
+            for (i in 0..vertices.size - 1) {
+                for (j in 0..vertices.size - 1) {
+                    addEdge(vertices[i], vertices[j], edges[i * vertices.size + j].toInt())
+                }
+            }*/
         val string = "0 5 0 3 10 " +
                 "0 0 4 0 0 " +
                 "0 0 0 0 0 " +

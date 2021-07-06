@@ -4,7 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a93d3f00-da5e-4788-b7c5-bba8117137dd" name="Default Changelist" comment="" />
+    <list default="true" id="a93d3f00-da5e-4788-b7c5-bba8117137dd" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/dijkstra/Dijkstra.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/dijkstra/Dijkstra.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/dijkstra/DijkstraStep.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/dijkstra/DijkstraStep.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/dijkstra/DijkstraSteps.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/dijkstra/DijkstraSteps.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/graph/Graph.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/graph/Graph.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/view/MainView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/view/MainView.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/kotlin/com/example/graph/GraphTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/kotlin/com/example/graph/GraphTest.kt" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -104,6 +112,14 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
   <component name="ProjectId" id="1uoIu3wLHk3zH1DhVEHdYSdFczE" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -116,6 +132,7 @@
     <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5" value="" />
     <property name="last_directory_selection" value="$PROJECT_DIR$/src/test/kotlin/com/example" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/src/test" />
+    <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
   <component name="RecentsManager">
     <key name="CreateTestDialog.Recents.Supers">
@@ -231,12 +248,12 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="JUnit.test in tornadofx-gradle-project-kts.test" />
-      <item itemvalue="Kotlin.MainKt" />
       <item itemvalue="Gradle.GraphTest.testRandomGraph" />
       <item itemvalue="Gradle.source [testClasses]" />
       <item itemvalue="Gradle.source [test]" />
       <item itemvalue="Gradle.GraphTest" />
+      <item itemvalue="JUnit.test in tornadofx-gradle-project-kts.test" />
+      <item itemvalue="Kotlin.MainKt" />
     </list>
     <recent_temporary>
       <list>
@@ -322,8 +339,15 @@
   <component name="XDebuggerManager">
     <pin-to-top-manager>
       <pinned-members>
+        <PinnedItemInfo parentTag="com.example.dijkstra.DijkstraStep" memberName="queue" />
         <PinnedItemInfo parentTag="com.example.graph.Graph" memberName="edges" />
       </pinned-members>
     </pin-to-top-manager>
+    <watches-manager>
+      <configuration name="JetRunConfigurationType">
+        <watch expression="dijkstraSteps.dijkstraSteps.size - 1" language="kotlin" />
+        <watch expression="dijkstraSteps.dijkstraSteps[dijkstraSteps.dijkstraSteps.size - 1].getTable().size - 1" language="kotlin" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>

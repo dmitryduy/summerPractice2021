@@ -1,5 +1,6 @@
 package com.example.view
 
+import com.example.dijkstra.*
 import com.example.graph.*
 import tornadofx.*
 import com.example.painter.*
@@ -29,15 +30,28 @@ private val columns = listOf(
     Row(arrayOf("", "", "", "", "", "", "", "", "", 14, "", "")),
 ).asObservable()
 
-val vertexes = observableListOf<String>("A", "B", "C", "D", "E", "F", "J","H", "I", "J", "K", "L")
+val vertexes = observableListOf<String>("A", "B", "C", "D", "E", "F", "J", "H", "I", "J", "K", "L")
 
-val foundPaths = observableListOf<String>("A->B: AB", "A->C: ABC", "A->E: ABCDE","A->B: AB", "A->C: ABC", "A->E: ABCDE","A->B: AB", "A->C: ABC", "A->E: ABCDE","A->B: AB", "A->C: ABC", "A->E: ABCDE")
+val foundPaths = observableListOf<String>(
+    "A->B: AB",
+    "A->C: ABC",
+    "A->E: ABCDE",
+    "A->B: AB",
+    "A->C: ABC",
+    "A->E: ABCDE",
+    "A->B: AB",
+    "A->C: ABC",
+    "A->E: ABCDE",
+    "A->B: AB",
+    "A->C: ABC",
+    "A->E: ABCDE"
+)
 val currentAction = "Какое-то действие, которое проиходит прямо сейчас"
 val order = observableListOf<String>("A", "B", "C", "D", "E")
 
 
 class MainView : View("Алгоритм Дейкстры") {
-    override val root : AnchorPane by fxml("layout.fxml")
+    override val root: AnchorPane by fxml("layout.fxml")
     private val vbox: VBox by fxid("foundPathsContainer")
     private val currentActionText: Text by fxid("currentAction")
     private val currentOrderLabel: Label by fxid("currentOrder")
@@ -67,7 +81,85 @@ class MainView : View("Алгоритм Дейкстры") {
         }
 
         tableContainer.add(createTable())
+        //пример работы
+        val a = Dijkstra()
+        val temp = a.makeAlgorithm(g, g.getVertices()[3])//возвращает Dijkstrasteps()
+        val test = temp.dijkstraSteps
+        for (i in test) {
+            when (i.getState()) {
+                DijkstraState.Start -> {
+                    print("Start")
+                    val table = i.getTable()
+                    for (j in table) {
+                        for (k in j) {
+                            if (k.first == null) {
+                                print("" + "inf" + " ")
+                            } else {
+                                print("" + k + " ")
+                            }
+                        }
+                        println()
+                    }
+                    val queue = i.getQueue()
+                    for (i in queue) {
+                        if (i.second == Integer.MAX_VALUE) {
+                            print("(" + i.first.getValue() + " " + "inf" + ") ")
+                        } else {
+                            print("(" + i.first.getValue() + " " + i.second + ") ")
+                        }
+                    }
 
+                    val currVertex = i.getCurrVertex()
+                    println("")
+                    print("StartVertex:" + currVertex.getValue())//типа здесь нужна нарисовать вершины
+                }
+                DijkstraState.VertexProcessing -> {//здесь нужно подсветить ребра
+                    println("VertexProcessing")
+                    val currVertex = i.getCurrVertex()
+                    print("CurrVertex:" + currVertex.getValue())
+                }
+                DijkstraState.UpdatedPath -> {
+                    println("UpdatedPath")
+                    var paths = i.getPaths()
+                    for (i in paths) {
+                        println(i)
+                    }
+
+                }
+                DijkstraState.UpdatedQueue -> {
+                    println("UpdatedQueue")
+                    val queue = i.getQueue()
+                    val sortedQueue = queue.sortedWith(MyComparator())//нужно отсортировать
+                    for (i in sortedQueue) {
+                        if (i.second == Integer.MAX_VALUE) {
+                            print("(" + i.first.getValue() + " " + "inf" + ") ")
+                        } else {
+                            print("(" + i.first.getValue() + " " + i.second + ") ")
+                        }
+                    }
+                }
+                DijkstraState.UpdatedTable -> {
+                    println("UpdatedTable")
+                    val table = i.getTable()
+                    for (j in table) {
+                        for (k in j) {
+                            //  print(k)
+                            if (k.first == null && k.second == Integer.MAX_VALUE) {
+                                print("" + "inf" + " ")
+                            } else if (k.first != null) {
+                                print("" + k.second + " ")
+                            } else {
+                                print("" + "--" + " ")
+                            }
+                        }
+                        println()
+                    }
+                }
+                else -> print("\n")
+            }
+            println("\n")
+        }//проходим по шагам и обновляем в зависимости от шага
+        println("end")
     }
 
     private fun createTable(): TableView<Row> {
@@ -87,8 +179,10 @@ class MainView : View("Алгоритм Дейкстры") {
         }
     }
 
-    private fun setButtonAnimation(button: Button, pressedSize: Pair<Double, Double>, pressedLayout: Pair<Double, Double>,
-                                   releasedSize: Pair<Double, Double>, releasedLayout: Pair<Double, Double>) {
+    private fun setButtonAnimation(
+        button: Button, pressedSize: Pair<Double, Double>, pressedLayout: Pair<Double, Double>,
+        releasedSize: Pair<Double, Double>, releasedLayout: Pair<Double, Double>
+    ) {
         button.setOnMousePressed {
             button.setPrefSize(pressedSize.first, pressedSize.second)
             button.layoutX = pressedLayout.first
