@@ -40,11 +40,18 @@
                     </Label>
                 </graphic>
             </Menu>
+=======
+            <Menu mnemonicParsing="false" text="Добавить"/>
+            <Menu mnemonicParsing="false" text="Удалить"/>
+>>>>>>> c5dc7ee691a82e81ea2314c083f0ed85eabdbd77
             <Menu mnemonicParsing="false" text="Запустить алгоритм">
                 <MenuItem fx:id="startByStep" mnemonicParsing="false" text="По шагам"/>
                 <MenuItem mnemonicParsing="false" text="Автоматически"/>
             </Menu>
-            <Menu mnemonicParsing="false" text="Сохранить"/>
+            <Menu mnemonicParsing="false" text="Сохранить">
+                <MenuItem fx:id="saveToFileButton" mnemonicParsing="false" text="В файл"/>
+            </Menu>
+
         </MenuBar>
         <ScrollPane style="-fx-background-color: none;" fx:id="tableContainer" layoutX="580" layoutY="35" prefHeight="500" prefWidth="600">
         </ScrollPane>
