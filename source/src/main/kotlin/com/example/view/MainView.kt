@@ -48,9 +48,12 @@ class MainView : View("Алгоритм Дейкстры") {
         setButtonAnimation(rect, Pair(70.0, 51.0), Pair(398.0, 631.0), Pair(72.0, 53.0), Pair(397.0, 630.0))
 
         rightButton.setOnMouseClicked {
-
+            leftButton.isDisable = false
             if (currentStep < temp.dijkstraSteps.size - 1)
                 currentStep++
+            if (currentStep == temp.dijkstraSteps.size - 1) {
+                rightButton.isDisable = true
+            }
             if (temp.dijkstraSteps[currentStep].getState() == DijkstraState.UpdatedPath && countPaths != arrayPaths.size) {
                 countPaths++
             }
@@ -60,8 +63,13 @@ class MainView : View("Алгоритм Дейкстры") {
         }
 
         leftButton.setOnMouseClicked {
+            rightButton.isDisable = false
+            leftButton.isDisable = false
             if (currentStep > 0)
                 currentStep--
+            if (currentStep == 0) {
+                leftButton.isDisable = true
+            }
             if (temp.dijkstraSteps[currentStep + 1].getState() == DijkstraState.UpdatedPath && countPaths != 0) {
                 countPaths--
             }
@@ -75,7 +83,7 @@ class MainView : View("Алгоритм Дейкстры") {
             if (!isByStepStarted && isSetGraph) {
                 isByStepStarted = true
 
-                activateButtons()
+                rightButton.isDisable = false
                 currentStep++
                 changeInterface(currentStep)
             }
@@ -277,11 +285,7 @@ class MainView : View("Алгоритм Дейкстры") {
         currentActionText.text = "UpdatedTable"
     }
 
-    private fun activateButtons() {
-        rightButton.isDisable = false
-        leftButton.isDisable = false
 
-    }
 
     private fun buildGraph(graph: Graph?) {
 
