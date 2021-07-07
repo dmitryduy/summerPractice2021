@@ -25,6 +25,7 @@
                 <MenuItem fx:id="startByStep" mnemonicParsing="false" text="По шагам"/>
                 <MenuItem mnemonicParsing="false" text="Автоматически"/>
             </Menu>
+            <Menu mnemonicParsing="false" text="Сохранить"/>
         </MenuBar>
         <ScrollPane style="-fx-background-color: none;" fx:id="tableContainer" layoutX="580" layoutY="35" prefHeight="500" prefWidth="600">
         </ScrollPane>
