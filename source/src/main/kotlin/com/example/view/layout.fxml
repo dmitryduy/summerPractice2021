@@ -41,5 +41,7 @@
         <ScrollPane  fx:id="foundPathScroll" layoutX="659" layoutY="537" prefHeight="195" prefWidth="378.0">
             <VBox prefHeight="190" prefWidth="355" fx:id="foundPathsContainer"/>
         </ScrollPane>
+        <Label visible="false" fx:id="setGraphError" layoutX="500" layoutY="30" prefHeight="25" prefWidth="400" textFill="red" style="-fx-font-weight: bold;"
+               text="Пожалуйста, выберите граф"/>
     </AnchorPane>
 </AnchorPane>

@@ -32,10 +32,12 @@ class MainView : View("Алгоритм Дейкстры") {
     private val startByStep: MenuItem by fxid("startByStep")
     private val randomGraphBuildButton: MenuItem by fxid("randomGraphBuildButton")
     private val buildGraphFromFileButton: MenuItem by fxid("buildGraphFromFileButton")
+    private val setGraphError: Label by fxid("setGraphError")
     private lateinit var temp: DijkstraSteps
     private var arrayPaths: ArrayList<String> = ArrayList()//пути рассчитываются один раз
     private var countPaths: Int = 0//количество путей на текущем шаге
     private var currentStep = -1
+    private var isSetGraph = false
 
 
     init {
@@ -69,8 +71,10 @@ class MainView : View("Алгоритм Дейкстры") {
         }
 
         startByStep.setOnAction {
-            if (!isByStepStarted) {
+            setGraphError.isVisible = !isSetGraph
+            if (!isByStepStarted && isSetGraph) {
                 isByStepStarted = true
+
                 activateButtons()
                 currentStep++
                 changeInterface(currentStep)
@@ -92,6 +96,8 @@ class MainView : View("Алгоритм Дейкстры") {
     }
 
     private fun clearLayout() {
+        setGraphError.isVisible = false
+        isSetGraph = true
         if(root.getChildList()?.size == 2) {
             root.getChildList()?.remove(root.getChildList()?.get(1))
         }
@@ -288,6 +294,10 @@ class MainView : View("Алгоритм Дейкстры") {
             val graphPane = p.paintGraph(graph)
             graphPane.layoutY = 20.0
             root.add(graphPane)
+        }
+        else {
+            isSetGraph = false
+            setGraphError.isVisible = true
         }
 
     }
