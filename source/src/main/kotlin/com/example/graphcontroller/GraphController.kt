@@ -6,8 +6,10 @@ import javafx.stage.FileChooser
 import tornadofx.chooseFile
 import tornadofx.isInt
 import java.io.File
-
+import java.io.IOException;
+import java.io.PrintWriter;
 class GraphController {
+    private val graph = Graph()
     fun buildFromFile(): Graph? {
         var g = Graph()
         var d = chooseFile(
@@ -97,6 +99,26 @@ class GraphController {
             return g
         }
         return null
+    }
+    fun saveToFile(graph: Graph){
+        var fileChooser = FileChooser()
+        fileChooser.getExtensionFilters().add(FileChooser.ExtensionFilter(
+            "Graph files",
+            "*.gr"
+        ))
+        var f: File? = fileChooser.showSaveDialog(null)
+        if (f != null) {
+            var text = "${graph.getVertices().size}\n"
+            for (a in graph.getMatrix().indices) {
+                text += graph.getMatrix()[a].joinToString(" ")
+                text += "\n"
+            }
+            for (v in graph.getVertices())
+                text += "${v.toString()} "
+            text = text.take(text.length - 1)
+            f.writeText(text)
+        }
+        else return
     }
 }
 fun showErrorAlert(str: String){

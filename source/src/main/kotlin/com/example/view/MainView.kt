@@ -32,6 +32,7 @@ class MainView : View("Алгоритм Дейкстры") {
     private val startByStep: MenuItem by fxid("startByStep")
     private val randomGraphBuildButton: MenuItem by fxid("randomGraphBuildButton")
     private val buildGraphFromFileButton: MenuItem by fxid("buildGraphFromFileButton")
+    private val saveToFileButton: MenuItem by fxid("saveToFileButton")
     private val setGraphError: Label by fxid("setGraphError")
     private lateinit var temp: DijkstraSteps
     private var arrayPaths: ArrayList<String> = ArrayList()//пути рассчитываются один раз
@@ -47,6 +48,8 @@ class MainView : View("Алгоритм Дейкстры") {
         setButtonAnimation(rightButton, Pair(70.0, 51.0), Pair(493.0, 631.0), Pair(72.0, 53.0), Pair(492.0, 630.0))
         setButtonAnimation(rect, Pair(70.0, 51.0), Pair(398.0, 631.0), Pair(72.0, 53.0), Pair(397.0, 630.0))
 
+        var gr: Graph? = Graph()
+        val graphController = GraphController()
         rightButton.setOnMouseClicked {
             leftButton.isDisable = false
             if (currentStep < temp.dijkstraSteps.size - 1)
@@ -91,16 +94,21 @@ class MainView : View("Алгоритм Дейкстры") {
         }
 
         buildGraphFromFileButton.setOnAction {
-            val graph = GraphController()
+            gr = graphController.buildFromFile()
             clearLayout()
-            buildGraph(graph.buildFromFile())
+            buildGraph(gr)
         }
 
         randomGraphBuildButton.setOnAction {
             clearLayout()
-            buildGraph(Graph(GraphType.RandomGraph))
+            gr = Graph(GraphType.RandomGraph)
+            buildGraph(gr)
         }
 
+        saveToFileButton.setOnAction{
+        if (gr != null && gr?.getVertices()?.size != 0)
+            graphController.saveToFile(gr!!)
+        }
     }
 
     private fun clearLayout() {
