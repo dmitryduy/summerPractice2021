@@ -2,10 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="28ebfd6b-bbe0-4f5b-8e64-7534ee93ecc6" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/source/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/source/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/source/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/source/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/source/src/main/kotlin/com/example/MyApp.kt" beforeDir="false" afterPath="$PROJECT_DIR$/source/src/main/kotlin/com/example/MyApp.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/source/src/main/kotlin/com/example/view/MainView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/source/src/main/kotlin/com/example/view/MainView.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.jar" beforeDir="false" afterPath="$PROJECT_DIR$/app.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/source/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/source/src/main/kotlin/com/example/view/layout.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/source/src/main/kotlin/com/example/view/layout.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,6 +27,28 @@
     <property name="aspect.path.notification.shown" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/source" />
   </component>
+  <component name="RunManager">
+    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
+      <option name="arquillianRunConfiguration">
+        <value>
+          <option name="containerStateName" value="" />
+        </value>
+      </option>
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="app.jar" type="JarApplication" temporary="true">
+      <option name="JAR_PATH" value="$PROJECT_DIR$/app.jar" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JAR Application.app.jar" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -36,6 +58,8 @@
       <option name="presentableId" value="Default" />
       <updated>1625422108598</updated>
       <workItem from="1625422113005" duration="16000" />
+      <workItem from="1625660280451" duration="2000" />
+      <workItem from="1625660343961" duration="29000" />
     </task>
     <servers />
   </component>
