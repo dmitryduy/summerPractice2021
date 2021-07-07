@@ -1,4 +1,5 @@
 source/build
 source/.gradle
+source/.idea/workspace.xml
 source/.idea/.gitignore
 source/local.properties
