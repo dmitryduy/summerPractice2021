@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a93d3f00-da5e-4788-b7c5-bba8117137dd" name="Default Changelist" comment="add_random_graph">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="a93d3f00-da5e-4788-b7c5-bba8117137dd" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -327,7 +325,14 @@
       <option name="project" value="LOCAL" />
       <updated>1625595004166</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="add_tests_block in report">
+      <created>1625611351200</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1625611351201</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -365,7 +370,8 @@
     <MESSAGE value="Algorithm implementation + part of intermediate" />
     <MESSAGE value="fix_table" />
     <MESSAGE value="added_intermediate_output" />
-    <option name="LAST_COMMIT_MESSAGE" value="added_intermediate_output" />
+    <MESSAGE value="add_tests_block in report" />
+    <option name="LAST_COMMIT_MESSAGE" value="add_tests_block in report" />
   </component>
   <component name="XDebuggerManager">
     <pin-to-top-manager>
