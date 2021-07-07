@@ -30,9 +30,6 @@ class MainView : View("Алгоритм Дейкстры") {
     private val rightButton: Button by fxid("rightButton")
     private val leftButton: Button by fxid("leftButton")
     private val startByStep: MenuItem by fxid("startByStep")
-    private val foundPathLabel: Label by fxid("foundPathLabel")
-    private val foundPathScroll: ScrollPane by fxid("foundPathScroll")
-    private val currentActionLabel: Label by fxid("currentActionLabel")
     private val randomGraphBuildButton: MenuItem by fxid("randomGraphBuildButton")
     private val buildGraphFromFileButton: MenuItem by fxid("buildGraphFromFileButton")
     private lateinit var temp: DijkstraSteps
@@ -61,7 +58,6 @@ class MainView : View("Алгоритм Дейкстры") {
         }
 
         leftButton.setOnMouseClicked {
-
             if (currentStep > 0)
                 currentStep--
             if (temp.dijkstraSteps[currentStep + 1].getState() == DijkstraState.UpdatedPath && countPaths != 0) {
@@ -84,12 +80,34 @@ class MainView : View("Алгоритм Дейкстры") {
 
         buildGraphFromFileButton.setOnAction {
             val graph = GraphController()
+            clearLayout()
             buildGraph(graph.buildFromFile())
         }
 
         randomGraphBuildButton.setOnAction {
-           buildGraph(Graph(GraphType.RandomGraph))
+            clearLayout()
+            buildGraph(Graph(GraphType.RandomGraph))
         }
+
+    }
+
+    private fun clearLayout() {
+        if(root.getChildList()?.size == 2) {
+            root.getChildList()?.remove(root.getChildList()?.get(1))
+        }
+        vertexes.clear()
+        if (tableContainer.content != null) {
+            tableContainer.content = null
+        }
+        currentStep = -1
+        countPaths = 0
+        leftButton.isDisable = true
+        rightButton.isDisable = true
+        isByStepStarted = false
+        vbox.clear()
+        currentOrderLabel.text = ""
+        currentActionText.text = ""
+
 
     }
 
@@ -115,7 +133,7 @@ class MainView : View("Алгоритм Дейкстры") {
 
         vbox.clear()
         if (countPaths != 0) {
-            for (i in 0..countPaths - 1) {
+            for (i in 0 until countPaths) {
                 vbox.add(label(arrayPaths[i]))
             }
         }
@@ -138,6 +156,7 @@ class MainView : View("Алгоритм Дейкстры") {
             }
             columns.add(Row(currentRow))
         }
+
 
         tableContainer.add(tableview(columns) {
             maxHeight = 498.0
@@ -255,7 +274,7 @@ class MainView : View("Алгоритм Дейкстры") {
     private fun activateButtons() {
         rightButton.isDisable = false
         leftButton.isDisable = false
-        rect.isDisable = false
+
     }
 
     private fun buildGraph(graph: Graph?) {
@@ -266,7 +285,6 @@ class MainView : View("Алгоритм Дейкстры") {
             temp = a.makeAlgorithm(graph, graph.getVertices()[0])//возвращает Dijkstrasteps()
             graph.getVertices().forEach { vertexes.add(it) }
             arrayPaths = getPaths(temp)
-
             val graphPane = p.paintGraph(graph)
             graphPane.layoutY = 20.0
             root.add(graphPane)
