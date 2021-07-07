@@ -10,6 +10,7 @@ import javafx.scene.control.*
 import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.VBox
 import javafx.scene.text.Text
+import javax.tools.Tool
 import kotlin.collections.ArrayList
 
 
@@ -23,8 +24,8 @@ var isByStepStarted = false
 class MainView : View("Алгоритм Дейкстры") {
     override val root: AnchorPane by fxml("layout.fxml")
     private val vbox: VBox by fxid("foundPathsContainer")
-    private val currentActionText: Text by fxid("currentAction")
-    private val currentOrderLabel: Label by fxid("currentOrder")
+    private val currentActionText: TextField by fxid("currentAction")
+    private val currentOrderLabel: TextField by fxid("currentOrder")
     private val tableContainer: ScrollPane by fxid("tableContainer")
     private val rect: Button by fxid("rect")
     private val rightButton: Button by fxid("rightButton")
@@ -40,8 +41,14 @@ class MainView : View("Алгоритм Дейкстры") {
     private var isSetGraph = false
 
 
-    init {
+    private fun stylizeTextField(textField: TextField) {
+        textField.isEditable = false
+        textField.style ="-fx-background-color: transparent; -fx-background-insets: 0; -fx-background-radius: 0; -fx-padding: 0;"
 
+    }
+    init {
+        stylizeTextField(currentOrderLabel)
+        stylizeTextField(currentActionText)
 
         setButtonAnimation(leftButton, Pair(70.0, 51.0), Pair(306.0, 631.0), Pair(72.0, 53.0), Pair(305.0, 630.0))
         setButtonAnimation(rightButton, Pair(70.0, 51.0), Pair(493.0, 631.0), Pair(72.0, 53.0), Pair(492.0, 630.0))
@@ -148,7 +155,9 @@ class MainView : View("Алгоритм Дейкстры") {
         vbox.clear()
         if (countPaths != 0) {
             for (i in 0 until countPaths) {
-                vbox.add(label(arrayPaths[i]))
+                val textField = TextField(arrayPaths[i])
+                stylizeTextField(textField)
+                vbox.add(textField)
             }
         }
         setTable(currentStepInfo)
