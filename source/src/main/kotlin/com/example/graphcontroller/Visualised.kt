@@ -33,6 +33,8 @@ class VisualisedVertex(
 
                     GraphControllerState.DELETINGVERTEX ->{
                         gc.delVisualVertex(this)
+                        if (gc.graph!!.getVertices().size == 0)
+                            gc.graphIsSet = false
                         gc.state = GraphControllerState.NOTEDITING
                     }
 

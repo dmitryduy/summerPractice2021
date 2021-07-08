@@ -134,6 +134,7 @@ class GraphController {
                 g.addEdge(e.first, e.second, e.third)
             }
             graph = g!!
+            graphIsSet = true
             buildVisual()
             return graph
         }
@@ -141,6 +142,7 @@ class GraphController {
     }
     fun randomBuild(){
         graph = Graph(GraphType.RandomGraph)
+        graphIsSet = true
         buildVisual()
     }
     fun getVisualisedGraph(): Pane{
@@ -156,6 +158,7 @@ class GraphController {
     var wholePane = Pane()
     var gPane = Pane()
     var vertexCircle = StackPane()
+    var graphIsSet = false
     init{
         state = GraphControllerState.NOTEDITING
         graph = Graph()
@@ -199,6 +202,7 @@ class GraphController {
                     addVisualVertex(it.sceneX, it.sceneY)
                     state = GraphControllerState.NOTEDITING
                     vertexCircle.isVisible = false
+                    graphIsSet = true
                 }
             }
         }

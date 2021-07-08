@@ -49,7 +49,6 @@ class MainView : View("Алгоритм Дейкстры") {
     private var arrayPaths: ArrayList<String> = ArrayList()//пути рассчитываются один раз
     private var countPaths: Int = 0//количество путей на текущем шаге
     private var currentStep = -1
-    private var isSetGraph = false
     private val layout = Layout()
     private val deleteVertexButton: MenuItem by fxid("deleteVertexButton")
     private val addVertexButton: MenuItem by fxid("addVertexButton")
@@ -147,15 +146,14 @@ class MainView : View("Алгоритм Дейкстры") {
         }
 
         startByStep.setOnAction {
-            isSetGraph = true
-            setGraphError.isVisible = !isSetGraph
-            if (graphController.graph != null){
+            setGraphError.isVisible = !graphController.graphIsSet
+            if (graphController.graph != null && graphController.graphIsSet){
                 val d = Dijkstra()
                 temp = d.makeAlgorithm(graphController.graph!!, graphController.graph!!.getVertices()[0])
                 graphController.graph!!.getVertices().forEach {vertexes.add(it)}
                 arrayPaths = getPaths(temp)
             }
-            if (!isByStepStarted && isSetGraph) {
+            if (!isByStepStarted && graphController.graphIsSet) {
                 isByStepStarted = true
                 startAlgorithmContainer.isDisable = true
 
@@ -167,15 +165,14 @@ class MainView : View("Алгоритм Дейкстры") {
         }
 
         autoplay.setOnAction {
-            isSetGraph = true
-            setGraphError.isVisible = !isSetGraph
-            if (graphController.graph != null){
+            setGraphError.isVisible = !graphController.graphIsSet
+            if (graphController.graph != null && graphController.graphIsSet){
                 val d = Dijkstra()
                 temp = d.makeAlgorithm(graphController.graph!!, graphController.graph!!.getVertices()[0])
                 graphController.graph!!.getVertices().forEach {vertexes.add(it)}
                 arrayPaths = getPaths(temp)
             }
-            if (!isAutoplayStarted && isSetGraph) {
+            if (!isAutoplayStarted && graphController.graphIsSet) {
                 clearTimer = false
                 startAlgorithmContainer.isDisable = true
                 isAutoplayStarted = true
@@ -247,7 +244,7 @@ class MainView : View("Алгоритм Дейкстры") {
         byButton = false
         startAlgorithmContainer.isDisable = false
         setGraphError.isVisible = false
-        isSetGraph = true
+        graphController.graphIsSet = true
         if (root.getChildList()?.size == 2) {
             root.getChildList()?.remove(root.getChildList()?.get(1))
         }
@@ -419,7 +416,7 @@ class MainView : View("Алгоритм Дейкстры") {
             root.add(graphPane)
         }
         else {
-            isSetGraph = false
+            graphController.graphIsSet = false
             setGraphError.isVisible = true
         }
 
