@@ -3,14 +3,15 @@ package com.example.view
 import com.example.dijkstra.*
 import com.example.graph.*
 import com.example.graphcontroller.GraphController
+import com.example.layout.Layout
 import tornadofx.*
 import com.example.painter.*
+import javafx.application.Platform
 import javafx.scene.control.*
 
 import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.VBox
-import javafx.scene.text.Text
-import javax.tools.Tool
+import java.util.*
 import kotlin.collections.ArrayList
 
 
@@ -19,6 +20,10 @@ class Row(val array: List<Any>)
 
 val vertexes = observableListOf<Vertex>()
 var isByStepStarted = false
+var isAutoplayStarted = false
+var clearTimer = false
+var byButton = false
+var firstLoad = false
 
 
 class MainView : View("Алгоритм Дейкстры") {
@@ -35,78 +40,113 @@ class MainView : View("Алгоритм Дейкстры") {
     private val buildGraphFromFileButton: MenuItem by fxid("buildGraphFromFileButton")
     private val saveToFileButton: MenuItem by fxid("saveToFileButton")
     private val setGraphError: Label by fxid("setGraphError")
+    private val autoplay: MenuItem by fxid("autoplay")
+    private val startAlgorithmContainer: Menu by fxid("startAlgorithmContainer")
     private lateinit var temp: DijkstraSteps
     private var arrayPaths: ArrayList<String> = ArrayList()//пути рассчитываются один раз
     private var countPaths: Int = 0//количество путей на текущем шаге
-    private var currentStep = -1
     private var isSetGraph = false
+    private val layout = Layout()
 
 
-    private fun stylizeTextField(textField: TextField) {
-        textField.isEditable = false
-        textField.style ="-fx-background-color: transparent; -fx-background-insets: 0; -fx-background-radius: 0; -fx-padding: 0;"
-
-    }
     init {
-        stylizeTextField(currentOrderLabel)
-        stylizeTextField(currentActionText)
+        layout.stylizeTextField(currentOrderLabel)
+        layout.stylizeTextField(currentActionText)
 
-        setButtonAnimation(leftButton, Pair(70.0, 51.0), Pair(306.0, 631.0), Pair(72.0, 53.0), Pair(305.0, 630.0))
-        setButtonAnimation(rightButton, Pair(70.0, 51.0), Pair(493.0, 631.0), Pair(72.0, 53.0), Pair(492.0, 630.0))
-        setButtonAnimation(rect, Pair(70.0, 51.0), Pair(398.0, 631.0), Pair(72.0, 53.0), Pair(397.0, 630.0))
+        layout.setButtonAnimation(leftButton)
+        layout.setButtonAnimation(rightButton)
+        layout.setButtonAnimation(rect)
 
         var gr: Graph? = Graph()
         val graphController = GraphController()
+
         rightButton.setOnMouseClicked {
             leftButton.isDisable = false
-            if (currentStep < temp.dijkstraSteps.size - 1)
-                currentStep++
-            if (currentStep == temp.dijkstraSteps.size - 1) {
+            if (layout.getStep() < temp.dijkstraSteps.size - 1)
+                layout.incrementStep()
+            if (layout.getStep() == temp.dijkstraSteps.size - 1) {
                 rightButton.isDisable = true
             }
-            if (temp.dijkstraSteps[currentStep].getState() == DijkstraState.UpdatedPath && countPaths != arrayPaths.size) {
+            if (temp.dijkstraSteps[layout.getStep()].getState() == DijkstraState.UpdatedPath && countPaths != arrayPaths.size) {
                 countPaths++
             }
-            changeInterface(currentStep)
+            changeInterface()
 
+
+        }
+
+        rect.setOnMouseClicked {
+            if (byButton || firstLoad) {
+                firstLoad = false
+                byButton = false
+                rect.style = "-fx-background-color: #f37b7f;"
+                setInterval()
+            }
+            else {
+                byButton = true
+                clearTimer = true
+                rect.style = "-fx-shape: 'M32 32 L32 44 L42 38';-fx-background-color: green"
+            }
 
         }
 
         leftButton.setOnMouseClicked {
             rightButton.isDisable = false
             leftButton.isDisable = false
-            if (currentStep > 0)
-                currentStep--
-            if (currentStep == 0) {
+            if (layout.getStep() > 0)
+                layout.decrementStep()
+            if (layout.getStep() == 0) {
                 leftButton.isDisable = true
             }
-            if (temp.dijkstraSteps[currentStep + 1].getState() == DijkstraState.UpdatedPath && countPaths != 0) {
+            if (temp.dijkstraSteps[layout.getStep() + 1].getState() == DijkstraState.UpdatedPath && countPaths != 0) {
                 countPaths--
             }
-            changeInterface(currentStep)
-
-
+            changeInterface()
         }
 
         startByStep.setOnAction {
             setGraphError.isVisible = !isSetGraph
             if (!isByStepStarted && isSetGraph) {
                 isByStepStarted = true
+                startAlgorithmContainer.isDisable = true
 
                 rightButton.isDisable = false
-                currentStep++
-                changeInterface(currentStep)
+                layout.incrementStep()
+                changeInterface()
             }
 
         }
 
+        autoplay.setOnAction {
+            setGraphError.isVisible = !isSetGraph
+            if (!isAutoplayStarted  && isSetGraph) {
+                clearTimer = false
+                startAlgorithmContainer.isDisable = true
+                isAutoplayStarted = true
+                rect.isDisable = false
+                layout.incrementStep()
+                changeInterface()
+                firstLoad = true
+
+
+            }
+        }
+
         buildGraphFromFileButton.setOnAction {
+            rect.isDisable = true
+            rect.style = "-fx-shape: 'M32 32 L32 44 L42 38';-fx-background-color: green"
             gr = graphController.buildFromFile()
+            if (isAutoplayStarted)
+                clearTimer = true
             clearLayout()
             buildGraph(gr)
         }
 
         randomGraphBuildButton.setOnAction {
+            rect.isDisable = true
+            rect.style = "-fx-shape: 'M32 32 L32 44 L42 38';-fx-background-color: green"
+            if (isAutoplayStarted)
+                clearTimer = true
             clearLayout()
             gr = Graph(GraphType.RandomGraph)
             buildGraph(gr)
@@ -118,7 +158,40 @@ class MainView : View("Алгоритм Дейкстры") {
         }
     }
 
+    private fun setInterval() {
+        Timer().scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                if (layout.getStep() == temp.dijkstraSteps.size - 1 || clearTimer) {
+                    clearTimer = false
+                    if (layout.getStep() == temp.dijkstraSteps.size - 1 ) {
+                        isAutoplayStarted = false
+                        rect.isDisable = true
+                    }
+
+
+                    this.cancel()
+                }
+                else {
+                    Platform.runLater(Runnable() {
+                        layout.incrementStep()
+                        if (temp.dijkstraSteps[layout.getStep()].getState() == DijkstraState.UpdatedPath && countPaths != arrayPaths.size) {
+                            countPaths++
+                        }
+
+                        changeInterface()
+
+
+                    })
+                }
+
+            }
+
+        },0,1000)
+    }
+
     private fun clearLayout() {
+        byButton = false
+        startAlgorithmContainer.isDisable = false
         setGraphError.isVisible = false
         isSetGraph = true
         if(root.getChildList()?.size == 2) {
@@ -128,11 +201,12 @@ class MainView : View("Алгоритм Дейкстры") {
         if (tableContainer.content != null) {
             tableContainer.content = null
         }
-        currentStep = -1
+        layout.resetStep()
         countPaths = 0
         leftButton.isDisable = true
         rightButton.isDisable = true
         isByStepStarted = false
+        isAutoplayStarted = false
         vbox.clear()
         currentOrderLabel.text = ""
         currentActionText.text = ""
@@ -164,11 +238,12 @@ class MainView : View("Алгоритм Дейкстры") {
         if (countPaths != 0) {
             for (i in 0 until countPaths) {
                 val textField = TextField(arrayPaths[i])
-                stylizeTextField(textField)
+                layout.stylizeTextField(textField)
                 vbox.add(textField)
             }
         }
         setTable(currentStepInfo)
+
     }
 
     private fun setTable(currentStepInfo: DijkstraStep) {
@@ -209,7 +284,7 @@ class MainView : View("Алгоритм Дейкстры") {
     }
 
     private fun setQueue(currentStepInfo: DijkstraStep, sortable: Boolean = false) {
-        var actionText: String = "Очередь: "
+        var actionText = "Очередь: "
         if (!sortable) {
             val queue = currentStepInfo.getQueue()
             queue.forEach {
@@ -226,30 +301,13 @@ class MainView : View("Алгоритм Дейкстры") {
             }
         }
 
-
-        // как будет выглядеть текст очереди
-
         currentOrderLabel.text = actionText
     }
 
-    private fun setButtonAnimation(
-        button: Button, pressedSize: Pair<Double, Double>, pressedLayout: Pair<Double, Double>,
-        releasedSize: Pair<Double, Double>, releasedLayout: Pair<Double, Double>
-    ) {
-        button.setOnMousePressed {
-            button.setPrefSize(pressedSize.first, pressedSize.second)
-            button.layoutX = pressedLayout.first
-            button.layoutY = pressedLayout.second
-        }
-        button.setOnMouseReleased {
-            button.setPrefSize(releasedSize.first, releasedSize.second)
-            button.layoutX = releasedLayout.first
-            button.layoutY = releasedLayout.second
-        }
-    }
 
-    private fun changeInterface(currentStep: Int) {
-        val currentStepInfo = temp.dijkstraSteps[currentStep]
+
+    private fun changeInterface() {
+        val currentStepInfo = temp.dijkstraSteps[layout.getStep()]
 
         when (currentStepInfo.getState()) {
             DijkstraState.Start -> initInterface(currentStepInfo)
@@ -274,6 +332,7 @@ class MainView : View("Алгоритм Дейкстры") {
         val currentVertex = currentStepInfo.getCurrVertex()
         // к текущему действию прибавляется запись о начальной вершине
         currentActionText.text += "\nStartVertex: $currentVertex"
+
     }
 
     private fun updateVertex(currentStepInfo: DijkstraStep) {
@@ -308,7 +367,7 @@ class MainView : View("Алгоритм Дейкстры") {
 
         if (graph != null) {
             val a = Dijkstra()
-            var p = Painter()
+            val p = Painter()
             temp = a.makeAlgorithm(graph, graph.getVertices()[0])//возвращает Dijkstrasteps()
             graph.getVertices().forEach { vertexes.add(it) }
             arrayPaths = getPaths(temp)

@@ -5,9 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a93d3f00-da5e-4788-b7c5-bba8117137dd" name="Default Changelist" comment="add_random_graph">
-      <change beforePath="$PROJECT_DIR$/../.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../app.jar" beforeDir="false" afterPath="$PROJECT_DIR$/../app.jar" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/view/MainView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/view/MainView.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/view/layout.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/view/layout.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -147,20 +146,7 @@
       <recent name="com.example.graph" />
     </key>
   </component>
-  <component name="RunManager" selected="JAR Application.tornadofx-gradle-project-kts-1.0-SNAPSHOT.jar">
-    <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
-      <option name="arquillianRunConfiguration">
-        <value>
-          <option name="containerStateName" value="" />
-        </value>
-      </option>
-      <option name="TEST_OBJECT" value="CLASS" />
-      <properties />
-      <listeners />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RunManager" selected="Kotlin.MainKt">
     <configuration name="GraphTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -251,15 +237,15 @@
       <item itemvalue="Gradle.source [test]" />
       <item itemvalue="Gradle.GraphTest" />
       <item itemvalue="Gradle.source [jar]" />
+      <item itemvalue="JAR Application.tornadofx-gradle-project-kts-1.0-SNAPSHOT.jar" />
       <item itemvalue="JUnit.test in tornadofx-gradle-project-kts.test" />
       <item itemvalue="Kotlin.MainKt" />
-      <item itemvalue="JAR Application.tornadofx-gradle-project-kts-1.0-SNAPSHOT.jar" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Kotlin.MainKt" />
         <item itemvalue="JAR Application.tornadofx-gradle-project-kts-1.0-SNAPSHOT.jar" />
         <item itemvalue="Gradle.source [jar]" />
-        <item itemvalue="Kotlin.MainKt" />
         <item itemvalue="Gradle.GraphTest" />
         <item itemvalue="Gradle.source [test]" />
       </list>
@@ -278,6 +264,8 @@
       <workItem from="1625597193061" duration="4356000" />
       <workItem from="1625644985103" duration="3345000" />
       <workItem from="1625648613107" duration="10625000" />
+      <workItem from="1625734132861" duration="2110000" />
+      <workItem from="1625745964039" duration="11816000" />
     </task>
     <task id="LOCAL-00001" summary="add_graph_and_tests">
       <created>1625403041046</created>
