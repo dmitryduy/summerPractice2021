@@ -21,23 +21,13 @@
                 <MenuItem fx:id = "randomGraphBuildButton" mnemonicParsing="false" text="Случайный"/>
                 <MenuItem fx:id = "buildGraphFromFileButton" mnemonicParsing="false" text="Из файла"/>
             </Menu>
-            <Menu mnemonicParsing="false">
-                <graphic>
-                    <Label text="Добавить">
-                        <tooltip>
-                            <Tooltip text="Добавить вершину/ребро" />
-                        </tooltip>
-                    </Label>
-                </graphic>
+            <Menu mnemonicParsing="false" text="Добавить">
+                <MenuItem fx:id="addVertexButton" mnemonicParsing="false" text="Вершину"/>
+                <MenuItem fx:id="addEdgeButton" mnemonicParsing="false" text="Ребро"/>
             </Menu>
-            <Menu mnemonicParsing="false">
-                <graphic>
-                    <Label text="Удалить">
-                        <tooltip>
-                            <Tooltip text="Удалить вершину/ребро" />
-                        </tooltip>
-                    </Label>
-                </graphic>
+            <Menu mnemonicParsing="false" text = "Удалить">
+                <MenuItem fx:id="deleteVertexButton" mnemonicParsing="false" text="Вершину"/>
+                <MenuItem fx:id="deleteEdgeButton" mnemonicParsing="false" text="Ребро"/>
             </Menu>
             <Menu fx:id="startAlgorithmContainer" mnemonicParsing="false" text="Запустить алгоритм">
                 <MenuItem fx:id="startByStep" mnemonicParsing="false" text="По шагам"/>

@@ -2,7 +2,7 @@ package com.example.view
 
 import com.example.dijkstra.*
 import com.example.graph.*
-import com.example.graphcontroller.GraphController
+import com.example.graphcontroller.*
 import com.example.layout.Layout
 import tornadofx.*
 import com.example.painter.*
@@ -51,6 +51,10 @@ class MainView : View("Алгоритм Дейкстры") {
     private var currentStep = -1
     private var isSetGraph = false
     private val layout = Layout()
+    private val deleteVertexButton: MenuItem by fxid("deleteVertexButton")
+    private val addVertexButton: MenuItem by fxid("addVertexButton")
+    private val addEdgeButton: MenuItem by fxid("addEdgeButton")
+    private val deleteEdgeButton: MenuItem by fxid("deleteEdgeButton")
 
 
     init {
@@ -61,8 +65,22 @@ class MainView : View("Алгоритм Дейкстры") {
         layout.setButtonAnimation(rightButton)
         layout.setButtonAnimation(rect)
 
-        var gr: Graph? = Graph()
         val graphController = GraphController()
+
+        root.add(graphController.wholePane)
+
+        deleteVertexButton.setOnAction {
+            graphController.state = GraphControllerState.DELETINGVERTEX
+        }
+        addVertexButton.setOnAction{
+            graphController.state = GraphControllerState.ADDINGVERTEX
+        }
+        addEdgeButton.setOnAction{
+            graphController.state = GraphControllerState.CHOOSINGFIRSTVERTEX
+        }
+        deleteEdgeButton.setOnAction{
+            graphController.state = GraphControllerState.DELETINGEDGE
+        }
 
         rightButton.setOnMouseClicked {
 
@@ -160,11 +178,11 @@ class MainView : View("Алгоритм Дейкстры") {
         buildGraphFromFileButton.setOnAction {
             rect.isDisable = true
             rect.style = "-fx-shape: 'M32 32 L32 44 L42 38';-fx-background-color: green"
-            gr = graphController.buildFromFile()
+            graphController.buildFromFile()
             if (isAutoplayStarted)
                 clearTimer = true
             clearLayout()
-            buildGraph(gr)
+            buildGraph(graphController)
         }
 
         randomGraphBuildButton.setOnAction {
@@ -173,13 +191,13 @@ class MainView : View("Алгоритм Дейкстры") {
             if (isAutoplayStarted)
                 clearTimer = true
             clearLayout()
-            gr = Graph(GraphType.RandomGraph)
-            buildGraph(gr)
+            graphController.randomBuild()
+            buildGraph(graphController)
         }
 
-        saveToFileButton.setOnAction {
-            if (gr != null && gr?.getVertices()?.size != 0)
-                graphController.saveToFile(gr!!)
+        saveToFileButton.setOnAction{
+            if (graphController.graph != null && graphController.graph?.getVertices()?.size != 0)
+                graphController.saveToFile(graphController.graph!!)
         }
     }
 
@@ -379,18 +397,20 @@ class MainView : View("Алгоритм Дейкстры") {
     }
 
 
-    private fun buildGraph(graph: Graph?) {
+    private fun buildGraph(controller: GraphController) {
 
+        val graph = controller.graph
         if (graph != null) {
             val a = Dijkstra()
             val p = Painter()
             temp = a.makeAlgorithm(graph, graph.getVertices()[0])//возвращает Dijkstrasteps()
             graph.getVertices().forEach { vertexes.add(it) }
             arrayPaths = getPaths(temp)
-            val graphPane = p.paintGraph(graph)
-            graphPane.layoutY = 20.0
+            val graphPane = controller.wholePane
+            graphPane.layoutY = 30.0
             root.add(graphPane)
-        } else {
+        }
+        else {
             isSetGraph = false
             setGraphError.isVisible = true
         }
