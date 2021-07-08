@@ -12,6 +12,8 @@ import org.omg.CORBA.Object
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.system.measureNanoTime
+import kotlin.test.assertFails
+import kotlin.test.assertFailsWith
 
 internal class VertexTest() {
     @DisplayName("Test with @MethodSource")
