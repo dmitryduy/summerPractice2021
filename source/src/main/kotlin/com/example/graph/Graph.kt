@@ -1,5 +1,7 @@
 package com.example.graph
 
+import com.example.dijkstra.DijkstraSteps
+import org.junit.jupiter.api.Assertions
 import kotlin.random.Random
 
 enum class GraphType {
@@ -10,15 +12,43 @@ class Graph(graphType: GraphType = GraphType.CommonGraph) {
     private var edges: ArrayList<ArrayList<Int>> = ArrayList<ArrayList<Int>>()
     private var vertices: ArrayList<Vertex> = ArrayList<Vertex>()
 
-
     init {
+        /*
         if (graphType == GraphType.RandomGraph) {
-            //generate random graph
-            //  val numberOfVertices: Int = Random.nextInt(4, 10)
+            val string = "0 4 0 0 0 0 0 0 0 0 0 0 " +//A
+                    "0 0 4 0 0 7 0 0 0 0 0 0 " +//B
+                    "0 0 0 0 0 0 7 0 0 0 0 0 " +//C
+                    "0 0 3 0 0 0 1 6 0 0 0 0 " +//D
+                    "7 0 0 0 0 0 0 0 4 0 0 0 " +//E
+                    "0 0 6 0 4 0 0 0 0 10 0 0 " +//F
+                    "0 0 0 1 0 8 0 9 0 9 7 6 " +//G
+                    "0 0 0 0 0 0 9 0 0 0 0 5 " +//H
+                    "0 0 0 0 4 4 0 0 0 9 0 0 " +//I
+                    "0 0 0 0 0 10 9 0 9 0 0 0 " +//J
+                    "0 0 0 0 0 0 0 0 0 0 0 0 " +//K
+                    "0 0 0 0 0 0 6 0 0 0 10 0" //L
+            //A+ B+ C+ D+ E+ F+ G+ H+ I+ J K L
+            val edges = string.split(" ")
+            val stringVer: String = "A B C D E F G H I J K L"
+
+            val vertices = stringVer.split(" ")
+
+            for (i in vertices) {
+                addVertex(i)
+            }
+            for (i in 0..vertices.size - 1) {
+                for (j in 0..vertices.size - 1) {
+                    addEdge(vertices[i], vertices[j], edges[i * vertices.size + j].toInt())
+                }
+            }
+        }*/
+        //generate random graph
+        //  val numberOfVertices: Int = Random.nextInt(4, 10)
+        if (graphType == GraphType.RandomGraph) {
             val numberOfVertices: Int = Random.nextInt(4, 10)
             //val numberOfEdges: Int = Random.nextInt(numberOfVertices - 1, numberOfVertices * (numberOfVertices - 1))
             for (i in 1..numberOfVertices) {
-                addVertex(i.toString())
+                addVertex(('A' + i - 1).toString())
             }
             for (i in 0..numberOfVertices - 1) {
                 var k = 0
@@ -32,12 +62,13 @@ class Graph(graphType: GraphType = GraphType.CommonGraph) {
                     if (i != n) {
                         addEdge(vertices[i], vertices[n], Random.nextInt(1, 6))
                     } else {
-                         n = Random.nextInt(vertices.size)
+                        n = Random.nextInt(vertices.size)
                         addEdge(vertices[i], vertices[n], Random.nextInt(1, 6))
                     }
                 }
             }
         }
+
     }
 
     fun getMatrix(): ArrayList<ArrayList<Int>> {
