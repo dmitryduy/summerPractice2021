@@ -16,6 +16,7 @@ import com.example.graphcontroller.*
 import javafx.scene.effect.Light
 import javafx.scene.layout.Pane
 import tornadofx.add
+import tornadofx.isInt
 
 class VisualisedVertex(
     var gc: GraphController,
@@ -45,12 +46,16 @@ class VisualisedVertex(
                         gc.highlightVertices(listOf(this), Color.DARKBLUE)
                         gc.tmpVertexPair = Pair(gc.tmpVertexPair.first!!, this.vertex)
                         ///adding from dialog text input
-                        var dialog = TextInputDialog("Введите вес")
+                        var dialog = TextInputDialog()
                         dialog.headerText = ""
+                        dialog.contentText = "Введите вес ребра"
                         val w = dialog.showAndWait()
                         if (w.isPresent)
-                            gc.addVisualEdge(gc.tmpVertexPair.first!!, gc.tmpVertexPair.second!!, w.get().toInt())
-                        ///
+                            if (w.get().isInt() && w.get().toInt() > 0)
+                                gc.addVisualEdge(gc.tmpVertexPair.first!!, gc.tmpVertexPair.second!!, w.get().toInt())
+                            else{
+                                showErrorAlert("Введен некорректный вес")
+                            }
                         gc.updateVisualEdges()
                         gc.state = GraphControllerState.NOTEDITING
                     }

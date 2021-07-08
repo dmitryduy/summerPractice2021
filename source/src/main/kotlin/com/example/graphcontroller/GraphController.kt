@@ -13,11 +13,13 @@ import javafx.scene.layout.StackPane
 import javafx.scene.shape.*
 import javafx.scene.text.Font
 import tornadofx.*
+import java.io.InputStream
 import com.example.visualised.*
 import javafx.scene.layout.Background
 import javafx.scene.layout.BackgroundFill
 import javafx.scene.text.FontWeight
 import org.intellij.lang.annotations.JdkConstants
+import java.io.IOException
 
 enum class GraphControllerState{
     NOTEDITING, CHOOSINGFIRSTVERTEX, CHOOSINGSECONDVERTEX, ADDINGVERTEX, DELETINGEDGE, DELETINGVERTEX, RUNNING_ALGORITHM
@@ -28,8 +30,7 @@ class VisualGraph(var edges: MutableList<VisualisedEdge>, var vertices: MutableL
 }
 class GraphController {
 
-    fun buildFromFile(){
-        var g = Graph()
+    fun getFileNameFromDialog(): String?{
         var d = chooseFile(
             "Выбрать файл", filters = arrayOf(
                 FileChooser.ExtensionFilter(
@@ -38,22 +39,39 @@ class GraphController {
                 )
             )
         )
-        val graphFile: File? = when (d.size) {
-            1 -> d.first()
-            else -> null
+        when (d.size) {
+            1 -> return d.first().absolutePath
+            else -> return null
         }
+    }
+    fun buildFromFile(fileName: String?): Graph?{
+        var g = Graph()
+        val inputStream: InputStream
+        if (fileName == null)
+            return null
+
+        try {
+            inputStream = File(fileName).inputStream()
+        }
+         catch(e: Exception){
+             showErrorAlert("Не удается найти файл: ${fileName}")
+             return null
+         }
+
+        val strs = mutableListOf<String>()
+        inputStream.bufferedReader().useLines {lines -> lines.forEach {strs.add(it)}}
+
         var vertexList = mutableListOf<String>()
         var edgesList = mutableListOf<Triple<String, String, Int>>()
 
-        if (graphFile != null) {
-            val strs: List<String> = graphFile!!.readLines()
-
-            var n_str = strs.first()
+        if (!strs.isEmpty()){
+        var n_str = strs.first()
 
             //проверка введенного числа вершин
             if (!n_str.isInt() || n_str.toInt() < 0){
                 showErrorAlert("Задано некорректное количество вершин",)
-                return
+                return null
+
             }
             val n = n_str.toInt()
             var rowsNum = 0
@@ -61,7 +79,8 @@ class GraphController {
             //проверка на количество строк в файле(должно быть n + 2)
             if (strs.size != n + 2){
                 showErrorAlert("Неверная структура файла",)
-                return
+                return null
+
             }
 
             //проверка на правильность введенной матрицы смежности
@@ -74,30 +93,30 @@ class GraphController {
                 }
                 if (rowsElements.last().size != n){
                     showErrorAlert("Неверный размер матрицы смежности(в строке ${i} не $n элементов)")
-                    return
+                    return null
                 }
                 for (a in rowsElements.last()){
                     if (!a.isInt() || a.toInt() < 0){
                         showErrorAlert("Матрица смежности содержит недопустимые значения")
-                        return
+                        return null
                     }
                 }
             }
             if (rowsNum !=n ){
                 showErrorAlert("Неверный размер матрицы смежности, количество строк не равно $n",)
-                return
+                return null
             }
             for (a in strs?.last()?.split(" ")) {
                 vertexList.add(a)
             }
             if (vertexList.size != n){
                 showErrorAlert("Ошибка считывания имен вершин: введено неверное количество вершин")
-                return
+                return null
             }
             for (v in vertexList.groupingBy{it}.eachCount()){
                 if (v.value > 1){
                     showErrorAlert("Ошибка считывания имен вершин: введеные вершины содержат повторения")
-                    return
+                    return null
                 }
             }
             for (v1 in 0 until n)
@@ -116,8 +135,9 @@ class GraphController {
             }
             graph = g!!
             buildVisual()
+            return graph
         }
-        return
+        return null
     }
     fun randomBuild(){
         graph = Graph(GraphType.RandomGraph)
@@ -137,7 +157,6 @@ class GraphController {
     var gPane = Pane()
     var vertexCircle = StackPane()
     init{
-        println("constructor called")
         state = GraphControllerState.NOTEDITING
         graph = Graph()
         gPane.maxWidth = 500.0
@@ -229,9 +248,10 @@ class GraphController {
     }
     fun hightLightWithOpacity(e: VisualisedEdge){
         for (eee in visualEdges){
-            if (eee.edge.first != e.edge.first || eee.edge.second !=e.edge.second)
+            if (eee.edge.first != e.edge.first || eee.edge.second != e.edge.second) {
                 for (a in eee.nodesList)
                     a.opacity = 0.3
+            }
         }
     }
     fun restoreOpacities(){
@@ -391,20 +411,21 @@ class GraphController {
         //updateVisualEdges()
 
     }
-    fun saveToFile(graph: Graph){
+    fun saveToFile(){
+
         var fileChooser = FileChooser()
         fileChooser.getExtensionFilters().add(FileChooser.ExtensionFilter(
             "Graph files",
             "*.gr"
         ))
         var f: File? = fileChooser.showSaveDialog(null)
-        if (f != null) {
-            var text = "${graph.getVertices().size}\n"
-            for (a in graph.getMatrix().indices) {
-                text += graph.getMatrix()[a].joinToString(" ")
+        if (f != null && graph != null) {
+            var text = "${graph!!.getVertices().size}\n"
+            for (a in graph!!.getMatrix().indices) {
+                text += graph!!.getMatrix()[a].joinToString(" ")
                 text += "\n"
             }
-            for (v in graph.getVertices())
+            for (v in graph!!.getVertices())
                 text += "${v.toString()} "
             text = text.take(text.length - 1)
             f.writeText(text)
@@ -418,10 +439,11 @@ fun vertexCursor(gController: GraphController): StackPane{
     return ve
 }
 fun getStringFromTextInput(): String?{
-    var dialog = TextInputDialog("Введите имя вершины")
+    var dialog = TextInputDialog()
     dialog.headerText = ""
+    dialog.contentText = "Введите имя вершины"
     val string = dialog.showAndWait()
-    if (string.isPresent)
+    if (string.isPresent && !string.get().isEmpty())
         return string.get()
     else return null
 }
