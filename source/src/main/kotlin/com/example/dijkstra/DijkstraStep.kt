@@ -1,5 +1,6 @@
 package com.example.dijkstra
 
+import com.example.graph.Graph
 import com.example.graph.Vertex
 import java.util.*
 import kotlin.collections.ArrayList
@@ -16,7 +17,8 @@ class DijkstraStep(
     private var dijkstraState: DijkstraState,
     private var queue: PriorityQueue<Pair<Vertex, Int>>,
     private val table: ArrayList<ArrayList<Pair<Vertex?, Int>>>,//вершина откуда вернулся и расстояние
-    private val currVertex: Vertex//таблица строки inf или окуда вернулся и текущее расстояние до вершины
+    private val currVertex: Vertex,//таблица строки inf или окуда вернулся и текущее расстояние до вершины
+    private val graph: Graph
 ) : Cloneable {
     public override fun clone(): Any {
         return super.clone()
@@ -24,6 +26,64 @@ class DijkstraStep(
 
     fun setQueue(_queue: PriorityQueue<Pair<Vertex, Int>>) {
         queue = _queue
+    }
+
+    fun getMessage(): String {
+        var message = ""
+        when (dijkstraState) {
+            DijkstraState.UpdatedPath -> {
+                message = "Обнаружен новый путь: "
+            }
+            DijkstraState.UpdatedTable -> {
+                if (table.size != 1) {
+                    message = "Обновлена таблица. "
+                    val first = "Поменялись значения для следующих вершин: "
+                    var testFirst = ""
+                    val prev = table[table.size - 2]
+                    val curr = table[table.size - 1]
+                    for (i in curr.indices) {
+                        if (curr[i].second != prev[i].second && curr[i].first != null) {
+                            testFirst += graph.getVertices()[i].getValue() + " "
+                        }
+                    }
+                    val second = "Поменялись значения для следующих вершин: "
+                    var testSecond = ""
+                    for (i in curr.indices) {
+                        if (curr[i].first == null && prev[i].first != null) {
+                            testSecond += graph.getVertices()[i].getValue() + " "
+                        }
+                    }
+                    if (!testFirst.isEmpty()) {
+                        message += first + testFirst
+                    }
+                    if (!testSecond.isEmpty()) {
+                        message += second + testSecond
+                    }
+                } else {
+                    message = "Иницилизация таблицы. "
+                }
+            }
+            DijkstraState.UpdatedQueue -> {
+                message = "Обновлена очередь. "
+            }
+            DijkstraState.Start -> {
+                message = "Вершина источник - ${currVertex}. "
+            }
+            DijkstraState.VertexProcessing -> {
+                message = "Обрабатывается вершина ${currVertex}. " +
+                        "\n" +
+                        "Возможные переходы: "
+                val matrix = graph.getMatrix()
+                val vertices = graph.getVertices()
+
+                for ((i, w) in matrix[graph.getVertex(currVertex.getValue())?.getIndex()!!].withIndex()) {
+                    if (w > 0) {
+                        message += vertices[i].getValue() + " \n"
+                    }
+                }
+            }
+        }
+        return message
     }
 
     fun setState(state: DijkstraState) {

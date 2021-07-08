@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a93d3f00-da5e-4788-b7c5-bba8117137dd" name="Default Changelist" comment="" />
+    <list default="true" id="a93d3f00-da5e-4788-b7c5-bba8117137dd" name="Default Changelist" comment="add_random_graph">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/view/MainView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/view/MainView.kt" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -126,7 +129,7 @@
     <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary" value="JUnit5" />
     <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5" value="" />
     <property name="last_directory_selection" value="$PROJECT_DIR$/src/test/kotlin/com/example" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../summerPractice" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.0" />
@@ -164,28 +167,7 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="GraphTest.testRandomGraph" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests &quot;com.example.graph.GraphTest.testRandomGraph&quot;" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":test" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <method v="2" />
-    </configuration>
-    <configuration name="source [testClasses]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="source [jar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -196,7 +178,7 @@
         </option>
         <option name="taskNames">
           <list>
-            <option value="testClasses" />
+            <option value="jar" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -239,6 +221,10 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="tornadofx-gradle-project-kts-1.0-SNAPSHOT.jar" type="JarApplication" temporary="true">
+      <option name="JAR_PATH" value="$PROJECT_DIR$/build/libs/tornadofx-gradle-project-kts-1.0-SNAPSHOT.jar" />
+      <method v="2" />
+    </configuration>
     <configuration name="MainKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.example.MainKt" />
       <module name="tornadofx-gradle-project-kts.main" />
@@ -247,20 +233,20 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="Gradle.GraphTest.testRandomGraph" />
-      <item itemvalue="Gradle.source [testClasses]" />
       <item itemvalue="Gradle.source [test]" />
       <item itemvalue="Gradle.GraphTest" />
+      <item itemvalue="Gradle.source [jar]" />
+      <item itemvalue="JAR Application.tornadofx-gradle-project-kts-1.0-SNAPSHOT.jar" />
       <item itemvalue="JUnit.test in tornadofx-gradle-project-kts.test" />
       <item itemvalue="Kotlin.MainKt" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Kotlin.MainKt" />
+        <item itemvalue="JAR Application.tornadofx-gradle-project-kts-1.0-SNAPSHOT.jar" />
+        <item itemvalue="Gradle.source [jar]" />
         <item itemvalue="Gradle.GraphTest" />
         <item itemvalue="Gradle.source [test]" />
-        <item itemvalue="Gradle.source [testClasses]" />
-        <item itemvalue="Gradle.GraphTest.testRandomGraph" />
       </list>
     </recent_temporary>
   </component>
@@ -275,7 +261,10 @@
       <workItem from="1625570466942" duration="9526000" />
       <workItem from="1625585653046" duration="3771000" />
       <workItem from="1625597193061" duration="4356000" />
-      <workItem from="1625644985103" duration="2294000" />
+      <workItem from="1625644985103" duration="3345000" />
+      <workItem from="1625648613107" duration="10625000" />
+      <workItem from="1625734132861" duration="2110000" />
+      <workItem from="1625745964039" duration="13033000" />
     </task>
     <task id="LOCAL-00001" summary="add_graph_and_tests">
       <created>1625403041046</created>

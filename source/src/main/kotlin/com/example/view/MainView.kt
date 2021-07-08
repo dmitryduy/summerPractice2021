@@ -2,16 +2,18 @@ package com.example.view
 
 import com.example.dijkstra.*
 import com.example.graph.*
+import com.example.graphcontroller.GraphController
+import com.example.layout.Layout
 import tornadofx.*
 import com.example.painter.*
+import javafx.application.Platform
 import javafx.scene.control.*
 
 import javafx.scene.layout.AnchorPane
-import javafx.scene.layout.Pane
 import javafx.scene.layout.VBox
-import javafx.scene.text.Text
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.concurrent.thread
 
 
 class Row(val array: List<Any>)
@@ -19,75 +21,219 @@ class Row(val array: List<Any>)
 
 val vertexes = observableListOf<Vertex>()
 var isByStepStarted = false
+var isAutoplayStarted = false
+var clearTimer = false
+var byButton = false
+var firstLoad = false
+const val DEBOUNCE_TIME: Long = 200
+const val CHANGE_STEP_TIME: Long = 500
 
 
 class MainView : View("Алгоритм Дейкстры") {
     override val root: AnchorPane by fxml("layout.fxml")
     private val vbox: VBox by fxid("foundPathsContainer")
-    private val currentActionText: Text by fxid("currentAction")
-    private val currentOrderLabel: Label by fxid("currentOrder")
+    private val currentActionText: TextField by fxid("currentAction")
+    private val currentOrderLabel: TextField by fxid("currentOrder")
     private val tableContainer: ScrollPane by fxid("tableContainer")
     private val rect: Button by fxid("rect")
     private val rightButton: Button by fxid("rightButton")
     private val leftButton: Button by fxid("leftButton")
     private val startByStep: MenuItem by fxid("startByStep")
-    private val foundPathLabel: Label by fxid("foundPathLabel")
-    private val foundPathScroll: ScrollPane by fxid("foundPathScroll")
-    private val currentActionLabel: Label by fxid("currentActionLabel")
+    private val randomGraphBuildButton: MenuItem by fxid("randomGraphBuildButton")
+    private val buildGraphFromFileButton: MenuItem by fxid("buildGraphFromFileButton")
+    private val saveToFileButton: MenuItem by fxid("saveToFileButton")
+    private val setGraphError: Label by fxid("setGraphError")
+    private val autoplay: MenuItem by fxid("autoplay")
+    private val startAlgorithmContainer: Menu by fxid("startAlgorithmContainer")
     private lateinit var temp: DijkstraSteps
     private var arrayPaths: ArrayList<String> = ArrayList()//пути рассчитываются один раз
     private var countPaths: Int = 0//количество путей на текущем шаге
     private var currentStep = -1
+    private var isSetGraph = false
+    private val layout = Layout()
 
 
     init {
+        layout.stylizeTextField(currentOrderLabel)
+        layout.stylizeTextField(currentActionText)
 
-        var g = Graph(graphType = GraphType.RandomGraph)
-        var p = Painter()
+        layout.setButtonAnimation(leftButton)
+        layout.setButtonAnimation(rightButton)
+        layout.setButtonAnimation(rect)
 
-        val a = Dijkstra()
-        temp = a.makeAlgorithm(g, g.getVertices()[0])//возвращает Dijkstrasteps()
-        g.getVertices().forEach { vertexes.add(it) }
-        arrayPaths = getPaths(temp)
-
-
-        val graphPane = p.paintGraph(g)
-        graphPane.layoutY = 20.0
-        root.add(graphPane)
-
-        setButtonAnimation(leftButton, Pair(70.0, 51.0), Pair(306.0, 631.0), Pair(72.0, 53.0), Pair(305.0, 630.0))
-        setButtonAnimation(rightButton, Pair(70.0, 51.0), Pair(493.0, 631.0), Pair(72.0, 53.0), Pair(492.0, 630.0))
-        setButtonAnimation(rect, Pair(70.0, 51.0), Pair(398.0, 631.0), Pair(72.0, 53.0), Pair(397.0, 630.0))
+        var gr: Graph? = Graph()
+        val graphController = GraphController()
 
         rightButton.setOnMouseClicked {
 
-            if (currentStep < temp.dijkstraSteps.size - 1)
-                currentStep++
-            if (temp.dijkstraSteps[currentStep].getState() == DijkstraState.UpdatedPath && countPaths != arrayPaths.size) {
+            leftButton.isDisable = false
+            if (layout.getStep() < temp.dijkstraSteps.size - 1) {
+                rightButton.isDisable = true
+                thread {
+                    Thread.sleep(DEBOUNCE_TIME)
+                    rightButton.isDisable = false
+                }
+                layout.incrementStep()
+            }
+
+            if (layout.getStep() == temp.dijkstraSteps.size - 1) {
+                rightButton.isDisable = true
+            }
+            if (temp.dijkstraSteps[layout.getStep()].getState() == DijkstraState.UpdatedPath && countPaths != arrayPaths.size) {
                 countPaths++
             }
-            changeInterface(currentStep)
+            changeInterface()
 
+
+        }
+
+        rect.setOnMouseClicked {
+            rect.isDisable = true
+            thread {
+                Thread.sleep(DEBOUNCE_TIME)
+                rect.isDisable = false
+            }
+            if (byButton || firstLoad) {
+                firstLoad = false
+                byButton = false
+                rect.style = "-fx-background-color: red;"
+                setInterval()
+            } else {
+                byButton = true
+                clearTimer = true
+                rect.style = "-fx-shape: 'M32 32 L32 44 L42 38';-fx-background-color: green"
+            }
 
         }
 
         leftButton.setOnMouseClicked {
 
-            if (currentStep > 0)
-                currentStep--
-            if (temp.dijkstraSteps[currentStep + 1].getState() == DijkstraState.UpdatedPath && countPaths != 0) {
+            rightButton.isDisable = false
+
+            if (layout.getStep() > 0) {
+                leftButton.isDisable = true
+                thread {
+                    Thread.sleep(DEBOUNCE_TIME)
+                    leftButton.isDisable = false
+                }
+
+                layout.decrementStep()
+            }
+
+            if (layout.getStep() == 0) {
+                leftButton.isDisable = true
+            }
+            if (temp.dijkstraSteps[layout.getStep() + 1].getState() == DijkstraState.UpdatedPath && countPaths != 0) {
                 countPaths--
             }
-            changeInterface(currentStep)
-
-
+            changeInterface()
         }
 
         startByStep.setOnAction {
-            activateButtons()
-            currentStep++
-            changeInterface(currentStep)
+            setGraphError.isVisible = !isSetGraph
+            if (!isByStepStarted && isSetGraph) {
+                isByStepStarted = true
+                startAlgorithmContainer.isDisable = true
+
+                rightButton.isDisable = false
+                layout.incrementStep()
+                changeInterface()
+            }
+
         }
+
+        autoplay.setOnAction {
+            setGraphError.isVisible = !isSetGraph
+            if (!isAutoplayStarted && isSetGraph) {
+                clearTimer = false
+                startAlgorithmContainer.isDisable = true
+                isAutoplayStarted = true
+                rect.isDisable = false
+                layout.incrementStep()
+                changeInterface()
+                firstLoad = true
+
+
+            }
+        }
+
+        buildGraphFromFileButton.setOnAction {
+            rect.isDisable = true
+            rect.style = "-fx-shape: 'M32 32 L32 44 L42 38';-fx-background-color: green"
+            gr = graphController.buildFromFile()
+            if (isAutoplayStarted)
+                clearTimer = true
+            clearLayout()
+            buildGraph(gr)
+        }
+
+        randomGraphBuildButton.setOnAction {
+            rect.isDisable = true
+            rect.style = "-fx-shape: 'M32 32 L32 44 L42 38';-fx-background-color: green"
+            if (isAutoplayStarted)
+                clearTimer = true
+            clearLayout()
+            gr = Graph(GraphType.RandomGraph)
+            buildGraph(gr)
+        }
+
+        saveToFileButton.setOnAction {
+            if (gr != null && gr?.getVertices()?.size != 0)
+                graphController.saveToFile(gr!!)
+        }
+    }
+
+    private fun setInterval() {
+        Timer().scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                if (layout.getStep() == temp.dijkstraSteps.size - 1 || clearTimer) {
+                    clearTimer = false
+                    if (layout.getStep() == temp.dijkstraSteps.size - 1) {
+                        isAutoplayStarted = false
+                        rect.isDisable = true
+                    }
+
+
+                    this.cancel()
+                } else {
+                    Platform.runLater(Runnable() {
+                        layout.incrementStep()
+                        if (temp.dijkstraSteps[layout.getStep()].getState() == DijkstraState.UpdatedPath && countPaths != arrayPaths.size) {
+                            countPaths++
+                        }
+
+                        changeInterface()
+
+
+                    })
+                }
+
+            }
+
+        }, 0, CHANGE_STEP_TIME)
+    }
+
+    private fun clearLayout() {
+        byButton = false
+        startAlgorithmContainer.isDisable = false
+        setGraphError.isVisible = false
+        isSetGraph = true
+        if (root.getChildList()?.size == 2) {
+            root.getChildList()?.remove(root.getChildList()?.get(1))
+        }
+        vertexes.clear()
+        if (tableContainer.content != null) {
+            tableContainer.content = null
+        }
+        layout.resetStep()
+        countPaths = 0
+        leftButton.isDisable = true
+        rightButton.isDisable = true
+        isByStepStarted = false
+        isAutoplayStarted = false
+        vbox.clear()
+        currentOrderLabel.text = ""
+        currentActionText.text = ""
 
 
     }
@@ -114,11 +260,14 @@ class MainView : View("Алгоритм Дейкстры") {
 
         vbox.clear()
         if (countPaths != 0) {
-            for (i in 0..countPaths - 1) {
-                vbox.add(label(arrayPaths[i]))
+            for (i in 0 until countPaths) {
+                val textField = TextField(arrayPaths[i])
+                layout.stylizeTextField(textField)
+                vbox.add(textField)
             }
         }
         setTable(currentStepInfo)
+
     }
 
     private fun setTable(currentStepInfo: DijkstraStep) {
@@ -137,6 +286,7 @@ class MainView : View("Алгоритм Дейкстры") {
             }
             columns.add(Row(currentRow))
         }
+
 
         tableContainer.add(tableview(columns) {
             maxHeight = 498.0
@@ -158,39 +308,29 @@ class MainView : View("Алгоритм Дейкстры") {
     }
 
     private fun setQueue(currentStepInfo: DijkstraStep, sortable: Boolean = false) {
-        val endQueue: Any
-        endQueue = if (!sortable) currentStepInfo.getQueue()
-        else currentStepInfo.getQueue().sortedWith(MyComparator())
-
-        var actionText: String = "Очередь: "
-
-        // как будет выглядеть текст очереди
-        endQueue.forEach {
-            actionText += if (it.second == Integer.MAX_VALUE) "(${it.first.getValue()} inf)"
-            else "(${it.first.getValue()} ${it.second})"
+        var actionText = "Очередь: "
+        if (!sortable) {
+            val queue = currentStepInfo.getQueue()
+            queue.forEach {
+                actionText += if (it.second == Integer.MAX_VALUE) "(${it.first.getValue()} inf)"
+                else "(${it.first.getValue()} ${it.second})"
+            }
+        } else {
+            val tmp = currentStepInfo.getQueue()
+            val queue = tmp.sortedWith(MyComparator())
+            queue.forEach {
+                actionText += if (it.second == Integer.MAX_VALUE) "(${it.first.getValue()} inf)"
+                else "(${it.first.getValue()} ${it.second})"
+            }
         }
+
         currentOrderLabel.text = actionText
     }
 
-    private fun setButtonAnimation(
-        button: Button, pressedSize: Pair<Double, Double>, pressedLayout: Pair<Double, Double>,
-        releasedSize: Pair<Double, Double>, releasedLayout: Pair<Double, Double>
-    ) {
-        button.setOnMousePressed {
-            button.setPrefSize(pressedSize.first, pressedSize.second)
-            button.layoutX = pressedLayout.first
-            button.layoutY = pressedLayout.second
-        }
-        button.setOnMouseReleased {
-            button.setPrefSize(releasedSize.first, releasedSize.second)
-            button.layoutX = releasedLayout.first
-            button.layoutY = releasedLayout.second
-        }
-    }
 
-    private fun changeInterface(currentStep: Int) {
-        val currentStepInfo = temp.dijkstraSteps[currentStep]
-
+    private fun changeInterface() {
+        val currentStepInfo = temp.dijkstraSteps[layout.getStep()]
+        currentActionText.text = currentStepInfo.getMessage()
         when (currentStepInfo.getState()) {
             DijkstraState.Start -> initInterface(currentStepInfo)
 
@@ -207,45 +347,54 @@ class MainView : View("Алгоритм Дейкстры") {
     private fun initInterface(currentStepInfo: DijkstraStep) {
         updateEveryStep(currentStepInfo)
         // Устанавливает текущее действие, в данном случае start
-        currentActionText.text = "Start"
 
         setQueue(currentStepInfo)
 
         val currentVertex = currentStepInfo.getCurrVertex()
         // к текущему действию прибавляется запись о начальной вершине
-        currentActionText.text += "\nStartVertex: $currentVertex"
+
     }
 
     private fun updateVertex(currentStepInfo: DijkstraStep) {
         updateEveryStep(currentStepInfo)
         val currentVertex = currentStepInfo.getCurrVertex()
         // обновляется текущее действие
-        currentActionText.text = "CurrVertex: ${currentVertex.getValue()}"
     }
 
     private fun updatePath(currentStepInfo: DijkstraStep) {
         updateEveryStep(currentStepInfo)
         // обновляется текущее действие
-        currentActionText.text = "UpdatedPath"
+        currentActionText.text += arrayPaths[countPaths-1]
     }
 
     private fun updateQueue(currentStepInfo: DijkstraStep) {
         updateEveryStep(currentStepInfo)
         // обновляется текущее действие
-        currentActionText.text = "UpdatedQueue"
         setQueue(currentStepInfo, true)
     }
 
     private fun updateTable(currentStepInfo: DijkstraStep) {
         updateEveryStep(currentStepInfo)
         // обновляется текущее действие
-        currentActionText.text = "UpdatedTable"
     }
 
-    private fun activateButtons() {
-        rightButton.isDisable = false
-        leftButton.isDisable = false
-        rect.isDisable = false
+
+    private fun buildGraph(graph: Graph?) {
+
+        if (graph != null) {
+            val a = Dijkstra()
+            val p = Painter()
+            temp = a.makeAlgorithm(graph, graph.getVertices()[0])//возвращает Dijkstrasteps()
+            graph.getVertices().forEach { vertexes.add(it) }
+            arrayPaths = getPaths(temp)
+            val graphPane = p.paintGraph(graph)
+            graphPane.layoutY = 20.0
+            root.add(graphPane)
+        } else {
+            isSetGraph = false
+            setGraphError.isVisible = true
+        }
+
     }
 }
 
