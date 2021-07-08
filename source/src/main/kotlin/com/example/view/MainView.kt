@@ -13,6 +13,7 @@ import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.VBox
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.concurrent.thread
 
 
 class Row(val array: List<Any>)
@@ -24,6 +25,8 @@ var isAutoplayStarted = false
 var clearTimer = false
 var byButton = false
 var firstLoad = false
+const val DEBOUNCE_TIME: Long = 200
+const val CHANGE_STEP_TIME: Long = 500
 
 
 class MainView : View("Алгоритм Дейкстры") {
@@ -61,9 +64,17 @@ class MainView : View("Алгоритм Дейкстры") {
         val graphController = GraphController()
 
         rightButton.setOnMouseClicked {
+
             leftButton.isDisable = false
-            if (layout.getStep() < temp.dijkstraSteps.size - 1)
+            if (layout.getStep() < temp.dijkstraSteps.size - 1) {
+                rightButton.isDisable = true
+                thread {
+                    Thread.sleep(DEBOUNCE_TIME)
+                    rightButton.isDisable = false
+                }
                 layout.incrementStep()
+            }
+
             if (layout.getStep() == temp.dijkstraSteps.size - 1) {
                 rightButton.isDisable = true
             }
@@ -76,10 +87,15 @@ class MainView : View("Алгоритм Дейкстры") {
         }
 
         rect.setOnMouseClicked {
+            rect.isDisable = true
+            thread {
+                Thread.sleep(DEBOUNCE_TIME)
+                rect.isDisable = false
+            }
             if (byButton || firstLoad) {
                 firstLoad = false
                 byButton = false
-                rect.style = "-fx-background-color: #f37b7f;"
+                rect.style = "-fx-background-color: red;"
                 setInterval()
             }
             else {
@@ -91,10 +107,19 @@ class MainView : View("Алгоритм Дейкстры") {
         }
 
         leftButton.setOnMouseClicked {
+
             rightButton.isDisable = false
-            leftButton.isDisable = false
-            if (layout.getStep() > 0)
+
+            if (layout.getStep() > 0) {
+                leftButton.isDisable = true
+                thread {
+                    Thread.sleep(DEBOUNCE_TIME)
+                    leftButton.isDisable = false
+                }
+
                 layout.decrementStep()
+            }
+
             if (layout.getStep() == 0) {
                 leftButton.isDisable = true
             }
@@ -186,7 +211,7 @@ class MainView : View("Алгоритм Дейкстры") {
 
             }
 
-        },0,1000)
+        },0, CHANGE_STEP_TIME)
     }
 
     private fun clearLayout() {
