@@ -48,6 +48,7 @@ class MainView : View("Алгоритм Дейкстры") {
     private lateinit var temp: DijkstraSteps
     private var arrayPaths: ArrayList<String> = ArrayList()//пути рассчитываются один раз
     private var countPaths: Int = 0//количество путей на текущем шаге
+    private var currentStep = -1
     private var isSetGraph = false
     private val layout = Layout()
 
@@ -97,8 +98,7 @@ class MainView : View("Алгоритм Дейкстры") {
                 byButton = false
                 rect.style = "-fx-background-color: red;"
                 setInterval()
-            }
-            else {
+            } else {
                 byButton = true
                 clearTimer = true
                 rect.style = "-fx-shape: 'M32 32 L32 44 L42 38';-fx-background-color: green"
@@ -144,7 +144,7 @@ class MainView : View("Алгоритм Дейкстры") {
 
         autoplay.setOnAction {
             setGraphError.isVisible = !isSetGraph
-            if (!isAutoplayStarted  && isSetGraph) {
+            if (!isAutoplayStarted && isSetGraph) {
                 clearTimer = false
                 startAlgorithmContainer.isDisable = true
                 isAutoplayStarted = true
@@ -177,9 +177,9 @@ class MainView : View("Алгоритм Дейкстры") {
             buildGraph(gr)
         }
 
-        saveToFileButton.setOnAction{
-        if (gr != null && gr?.getVertices()?.size != 0)
-            graphController.saveToFile(gr!!)
+        saveToFileButton.setOnAction {
+            if (gr != null && gr?.getVertices()?.size != 0)
+                graphController.saveToFile(gr!!)
         }
     }
 
@@ -188,15 +188,14 @@ class MainView : View("Алгоритм Дейкстры") {
             override fun run() {
                 if (layout.getStep() == temp.dijkstraSteps.size - 1 || clearTimer) {
                     clearTimer = false
-                    if (layout.getStep() == temp.dijkstraSteps.size - 1 ) {
+                    if (layout.getStep() == temp.dijkstraSteps.size - 1) {
                         isAutoplayStarted = false
                         rect.isDisable = true
                     }
 
 
                     this.cancel()
-                }
-                else {
+                } else {
                     Platform.runLater(Runnable() {
                         layout.incrementStep()
                         if (temp.dijkstraSteps[layout.getStep()].getState() == DijkstraState.UpdatedPath && countPaths != arrayPaths.size) {
@@ -211,7 +210,7 @@ class MainView : View("Алгоритм Дейкстры") {
 
             }
 
-        },0, CHANGE_STEP_TIME)
+        }, 0, CHANGE_STEP_TIME)
     }
 
     private fun clearLayout() {
@@ -219,7 +218,7 @@ class MainView : View("Алгоритм Дейкстры") {
         startAlgorithmContainer.isDisable = false
         setGraphError.isVisible = false
         isSetGraph = true
-        if(root.getChildList()?.size == 2) {
+        if (root.getChildList()?.size == 2) {
             root.getChildList()?.remove(root.getChildList()?.get(1))
         }
         vertexes.clear()
@@ -316,8 +315,7 @@ class MainView : View("Алгоритм Дейкстры") {
                 actionText += if (it.second == Integer.MAX_VALUE) "(${it.first.getValue()} inf)"
                 else "(${it.first.getValue()} ${it.second})"
             }
-        }
-        else {
+        } else {
             val tmp = currentStepInfo.getQueue()
             val queue = tmp.sortedWith(MyComparator())
             queue.forEach {
@@ -330,10 +328,9 @@ class MainView : View("Алгоритм Дейкстры") {
     }
 
 
-
     private fun changeInterface() {
         val currentStepInfo = temp.dijkstraSteps[layout.getStep()]
-
+        currentActionText.text = currentStepInfo.getMessage()
         when (currentStepInfo.getState()) {
             DijkstraState.Start -> initInterface(currentStepInfo)
 
@@ -350,13 +347,11 @@ class MainView : View("Алгоритм Дейкстры") {
     private fun initInterface(currentStepInfo: DijkstraStep) {
         updateEveryStep(currentStepInfo)
         // Устанавливает текущее действие, в данном случае start
-        currentActionText.text = "Start"
 
         setQueue(currentStepInfo)
 
         val currentVertex = currentStepInfo.getCurrVertex()
         // к текущему действию прибавляется запись о начальной вершине
-        currentActionText.text += "\nStartVertex: $currentVertex"
 
     }
 
@@ -364,28 +359,24 @@ class MainView : View("Алгоритм Дейкстры") {
         updateEveryStep(currentStepInfo)
         val currentVertex = currentStepInfo.getCurrVertex()
         // обновляется текущее действие
-        currentActionText.text = "CurrVertex: ${currentVertex.getValue()}"
     }
 
     private fun updatePath(currentStepInfo: DijkstraStep) {
         updateEveryStep(currentStepInfo)
         // обновляется текущее действие
-        currentActionText.text = "UpdatedPath"
+        currentActionText.text += arrayPaths[countPaths-1]
     }
 
     private fun updateQueue(currentStepInfo: DijkstraStep) {
         updateEveryStep(currentStepInfo)
         // обновляется текущее действие
-        currentActionText.text = "UpdatedQueue"
         setQueue(currentStepInfo, true)
     }
 
     private fun updateTable(currentStepInfo: DijkstraStep) {
         updateEveryStep(currentStepInfo)
         // обновляется текущее действие
-        currentActionText.text = "UpdatedTable"
     }
-
 
 
     private fun buildGraph(graph: Graph?) {
@@ -399,8 +390,7 @@ class MainView : View("Алгоритм Дейкстры") {
             val graphPane = p.paintGraph(graph)
             graphPane.layoutY = 20.0
             root.add(graphPane)
-        }
-        else {
+        } else {
             isSetGraph = false
             setGraphError.isVisible = true
         }

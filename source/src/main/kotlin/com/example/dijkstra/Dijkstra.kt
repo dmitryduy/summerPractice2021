@@ -21,6 +21,7 @@ class MyComparatorPaths : Comparator<String> {
 
 class Dijkstra {
     private val dijkstraSteps: DijkstraSteps = DijkstraSteps()
+    private lateinit var currGraph: Graph
 
     private fun changeElemInQueue(queue: PriorityQueue<Pair<Vertex, Int>>, vertex: Vertex, newInt: Int) {
         for (i in queue) {
@@ -58,7 +59,15 @@ class Dijkstra {
         for (i in queueNew) {
             queueRes.add(Pair<Vertex, Int>(i.first, i.second))
         }
-        dijkstraSteps.addStep(DijkstraStep(dijkstraState = DijkstraState.Start, queueRes, res, queue.peek().first))
+        dijkstraSteps.addStep(
+            DijkstraStep(
+                dijkstraState = DijkstraState.Start,
+                queueRes,
+                res,
+                queue.peek().first,
+                currGraph
+            )
+        )
     }
 
     private fun addStepVertexProcessing(vertex: Vertex) {
@@ -69,7 +78,7 @@ class Dijkstra {
                 DijkstraState.VertexProcessing,
                 new.getQueue(),
                 new.getTable(),
-                vertex
+                vertex, currGraph
             )
         )
     }
@@ -80,7 +89,7 @@ class Dijkstra {
             DijkstraStep(
                 DijkstraState.UpdatedPath, new.getQueue(),
                 new.getTable(),
-                new.getCurrVertex()
+                new.getCurrVertex(), currGraph
             )
         )
 
@@ -93,7 +102,15 @@ class Dijkstra {
         for (i in queueNew) {
             queueRes.add(Pair(i.first, i.second))
         }
-        dijkstraSteps.addStep(DijkstraStep(DijkstraState.UpdatedQueue, queueRes, new.getTable(), new.getCurrVertex()))
+        dijkstraSteps.addStep(
+            DijkstraStep(
+                DijkstraState.UpdatedQueue,
+                queueRes,
+                new.getTable(),
+                new.getCurrVertex(),
+                currGraph
+            )
+        )
     }
 
     private fun addStepUpdatedTable(
@@ -113,12 +130,13 @@ class Dijkstra {
                 DijkstraState.UpdatedTable,
                 new.getQueue(),
                 prevTable,
-                new.getCurrVertex()
+                new.getCurrVertex(), currGraph
             )
         )
     }
 
     fun makeAlgorithm(graph: Graph, start: Vertex): DijkstraSteps {
+        currGraph = graph
         dijkstraSteps.clear()
         //init queue
         val queue: PriorityQueue<Pair<Vertex, Int>> = PriorityQueue<Pair<Vertex, Int>>(MyComparator())
