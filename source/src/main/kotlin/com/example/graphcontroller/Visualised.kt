@@ -29,6 +29,7 @@ class VisualisedVertex(
     init{
         for (a in nodesList){
             a.setOnMouseClicked{
+               // gc.highlightVertices(listOf(this), Color.RED)
                 when(gc.state){
 
                     GraphControllerState.DELETINGVERTEX ->{
@@ -39,13 +40,13 @@ class VisualisedVertex(
                     }
 
                     GraphControllerState.CHOOSINGFIRSTVERTEX -> {
-                        gc.highlightVertices(listOf(this), Color.DARKBLUE)
+                        gc.highlightVertices(listOf(this), Color.GREEN)
                         gc.tmpVertexPair = Pair(this.vertex, null)
                         gc.state = GraphControllerState.CHOOSINGSECONDVERTEX
                     }
 
                     GraphControllerState.CHOOSINGSECONDVERTEX ->{
-                        gc.highlightVertices(listOf(this), Color.DARKBLUE)
+                        gc.highlightVertices(listOf(this), Color.GREEN)
                         gc.tmpVertexPair = Pair(gc.tmpVertexPair.first!!, this.vertex)
                         ///adding from dialog text input
                         var dialog = TextInputDialog()
@@ -66,12 +67,14 @@ class VisualisedVertex(
             }
 
             a.setOnMouseDragged{
-                gc.highlightVertices(listOf(this), Color.BLUE)
-               // if (10 < it.sceneX - 35 && it.sceneX - 10 <= gc.wholePane.maxWidth && 10 < it.sceneY  - 45 && it.sceneY  - 45 <= gc.wholePane.maxHeight){
-                    gc.changeLayout(this, it.sceneX - 35, it.sceneY - 45)
-                //}
+                if (gc.state == GraphControllerState.NOTEDITING) {
+                    gc.highlightVertices(listOf(this), Color.BLUE)
+                    //if (10 < it.sceneX - 35 && it.sceneX - 10 <= gc.wholePane.maxWidth && 10 < it.sceneY - 45 && it.sceneY - 45 <= gc.wholePane.maxHeight) {
+                        gc.changeLayout(this, it.sceneX - 35, it.sceneY - 45)
+                    //}
+                }
             }
-            a.setOnMouseDragReleased {
+            a.setOnMouseDragReleased{
                 gc.updateVisualEdges()
             }
             a.setOnMouseEntered{
@@ -80,13 +83,11 @@ class VisualisedVertex(
                     GraphControllerState.DELETINGVERTEX -> {
                         gc.highlightVertices(listOf(this), Color.DARKRED)
                     }
-                    GraphControllerState.CHOOSINGFIRSTVERTEX -> {
-                        gc.highlightVertices(listOf(this), Color.DARKBLUE)
-                    }
                 }
             }
             a.setOnMouseExited{
-                gc.highlightVertices(listOf(this), Color.BLACK)
+                if (gc.state != GraphControllerState.CHOOSINGSECONDVERTEX)
+                    gc.highlightVertices(listOf(this), Color.BLACK)
             }
         }
     }

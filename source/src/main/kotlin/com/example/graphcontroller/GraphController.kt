@@ -171,7 +171,8 @@ class GraphController {
         wholePane.add(gPane)
         wholePane.add(vertexCircle)
         wholePane.setOnMouseClicked{
-            updateVisualEdges()
+            if (state == GraphControllerState.NOTEDITING)
+                updateVisualEdges()
         }
         vertexCircle.isVisible = false
         wholePane.setOnMouseEntered{
