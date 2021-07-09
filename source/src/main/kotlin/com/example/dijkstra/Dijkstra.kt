@@ -165,12 +165,17 @@ class Dijkstra {
                     val secondVertex = findElemInQueue(j, queue)
                     if (secondVertex != null) {
                         if (secondVertex.second > curr.second + graph.getMatrix()[curr.first.getIndex()][j]) {
-                            values.add(Pair(curr.first, curr.second + graph.getMatrix()[curr.first.getIndex()][j]))
-                            changeElemInQueue(
-                                queue,
-                                secondVertex.first,
-                                curr.second + graph.getMatrix()[curr.first.getIndex()][j]
-                            )
+                            if (curr.second != Integer.MAX_VALUE) {
+
+                                values.add(Pair(curr.first, curr.second + graph.getMatrix()[curr.first.getIndex()][j]))
+                                changeElemInQueue(
+                                    queue,
+                                    secondVertex.first,
+                                    curr.second + graph.getMatrix()[curr.first.getIndex()][j]
+                                )
+                            } else {
+                                values.add(Pair(Vertex("", -1), -1))
+                            }
                         } else {
                             values.add(Pair(Vertex("", -1), -1))
                         }
@@ -191,7 +196,6 @@ class Dijkstra {
             addStepUpdatedPath()
             result.add(curr)
         }
-        println("Result:result")
         return dijkstraSteps
     }
 }

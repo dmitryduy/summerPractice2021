@@ -1,33 +1,92 @@
 package com.example.graph
 
+import com.example.dijkstra.Dijkstra
+import com.example.dijkstra.DijkstraSteps
+import com.example.dijkstra.MyComparatorPaths
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.junit.runners.Parameterized
 import tornadofx.isInt
+import tornadofx.stringProperty
 import java.io.File
 import java.io.InputStream
 import kotlin.test.assertEquals
 
 internal class DijkstraTest {
-    @DisplayName("GraphTest")
+    private val arrayPaths: ArrayList<String> = ArrayList<String>()
+    private fun getPaths(dijkstraSteps: DijkstraSteps, vertexes: ArrayList<Vertex>): ArrayList<String> {
+        arrayPaths.clear()
+
+        vertexes.forEach {
+            val curr = dijkstraSteps.getResult().getPath(it)
+            if (curr != "=") {
+                arrayPaths.add(curr)
+            }
+        }
+
+        val sortedList = arrayPaths.sortedWith(MyComparatorPaths())
+        arrayPaths.clear()
+        for (i in sortedList) {
+            arrayPaths.add(i)
+        }
+        return arrayPaths
+    }
+
+    @DisplayName("DijkstraTest")
     @ParameterizedTest
-    @MethodSource("graphs")
-    fun test(path: String) {
+    @MethodSource("graphsDijkstra")
+    fun test(path: String, expectedPaths: Array<String>) {
         val gr = copyBuildFromFile("src/test/kotlin/tests/Graph/" + path)
+        val a = Dijkstra()
+        var steps: DijkstraSteps?
+        if (gr != null) {
+            steps = a.makeAlgorithm(gr, Vertex("A", 0))
+            val paths = getPaths(steps, gr.getVertices())
+            assertEquals(expectedPaths.size, paths.size)
+            for (i in 0..expectedPaths.size-1) {
+                assertEquals(expectedPaths[i], paths[i])
+            }
+        }
     }
 
     companion object {
         @JvmStatic
         @Parameterized.Parameters
-        fun graphs(): Collection<Array<Any>> {
+        fun graphsDijkstra(): Collection<Array<Any>> {
             return listOf(
-                arrayOf("test1.gr"),         // First test:  (paramOne = 1, paramTwo = "I")
-                arrayOf("test2.gr"), // Second test: (paramOne = 1999, paramTwo = "MCMXCIX")
-                arrayOf("test3.gr"), // Second test: (paramOne = 1999, paramTwo = "MCMXCIX")
-                arrayOf("test4.gr"),// Second test: (paramOne = 1999, paramTwo = "MCMXCIX")
-                arrayOf("test5.gr"), // Second test: (paramOne = 1999, paramTwo = "MCMXCIX")
-                arrayOf("test6.gr") // Second test: (paramOne = 1999, paramTwo = "MCMXCIX")
+                arrayOf(
+                    "test3.gr", arrayOf("A=0", "A->B=1", "A->C=1", "A->D=1", "A->E=1")
+                ),
+                arrayOf(
+                    "test1.gr",
+                    arrayOf(
+                        "A=0",
+                        "A->B=4",
+                        "A->B->C=8",
+                        "A->B->F=11",
+                        "A->B->F->E=15",
+                        "A->B->C->G=15",
+                        "A->B->C->G->D=16",
+                        "A->B->F->E->I=19",
+                        "A->B->F->J=21",
+                        "A->B->C->G->L=21",
+                        "A->B->C->G->D->H=22",
+                        "A->B->C->G->K=22"
+                    )
+                ),
+                arrayOf(
+                    "test2.gr", arrayOf("A=0")
+                ),
+                arrayOf(
+                    "test4.gr", arrayOf("A=0", "A->B=1")
+                ),
+                arrayOf(
+                    "test5.gr", arrayOf("A=0")
+                ),
+                arrayOf(
+                    "test6.gr", arrayOf("A=0", "A->B=1", "A->D=1", "A->B->C=2", "A->B->E=2")
+                )
             )
         }
     }
@@ -85,7 +144,7 @@ internal class DijkstraTest {
             if (rowsNum != n) {
                 return null
             }
-            for (a in strs?.last()?.split(" ")) {
+            for (a in strs.last().split(" ")) {
                 vertexList.add(a)
             }
             if (vertexList.size != n) {
