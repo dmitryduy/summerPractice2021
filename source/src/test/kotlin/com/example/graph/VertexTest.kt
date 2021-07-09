@@ -16,7 +16,7 @@ import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
 
 internal class VertexTest() {
-    @DisplayName("Test with @MethodSource")
+    @DisplayName("VertexTest")
     @ParameterizedTest
     @MethodSource("vertex")
     fun test(name: String, index: Int) {

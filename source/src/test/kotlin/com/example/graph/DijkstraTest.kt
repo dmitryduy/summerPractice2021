@@ -1,8 +1,5 @@
 package com.example.graph
 
-import com.example.graphcontroller.GraphController
-import com.example.graphcontroller.showErrorAlert
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -10,8 +7,30 @@ import org.junit.runners.Parameterized
 import tornadofx.isInt
 import java.io.File
 import java.io.InputStream
+import kotlin.test.assertEquals
 
-internal class GraphControllerTest {
+internal class DijkstraTest {
+    @DisplayName("GraphTest")
+    @ParameterizedTest
+    @MethodSource("graphs")
+    fun test(path: String) {
+        val gr = copyBuildFromFile("src/test/kotlin/tests/Graph/" + path)
+    }
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters
+        fun graphs(): Collection<Array<Any>> {
+            return listOf(
+                arrayOf("test1.gr"),         // First test:  (paramOne = 1, paramTwo = "I")
+                arrayOf("test2.gr"), // Second test: (paramOne = 1999, paramTwo = "MCMXCIX")
+                arrayOf("test3.gr"), // Second test: (paramOne = 1999, paramTwo = "MCMXCIX")
+                arrayOf("test4.gr"),// Second test: (paramOne = 1999, paramTwo = "MCMXCIX")
+                arrayOf("test5.gr"), // Second test: (paramOne = 1999, paramTwo = "MCMXCIX")
+                arrayOf("test6.gr") // Second test: (paramOne = 1999, paramTwo = "MCMXCIX")
+            )
+        }
+    }
 
     fun copyBuildFromFile(fileName: String?): Graph? {
         var g = Graph()
@@ -97,43 +116,4 @@ internal class GraphControllerTest {
         return null
     }
 
-    @DisplayName("GraphControllerTest")
-    @ParameterizedTest
-    @MethodSource("graphs")
-    fun test(path: String, boolean: Boolean) {
-        val gr = copyBuildFromFile("src/test/kotlin/tests/GraphController/" + path)
-        assertEquals(gr == null, boolean)
-    }
-
-    //имена объектов
-    companion object {
-        @JvmStatic
-        @Parameterized.Parameters
-        fun graphs(): Collection<Array<Any?>> {
-            return listOf(
-                arrayOf(
-                    "test1.gr", false
-                ),
-                arrayOf(
-                    "test2.gr", true
-                ),
-                arrayOf(
-                    "test3.gr", true
-                ),
-                arrayOf(
-                    "test4.gr", true
-                ),
-                arrayOf(
-                    "test5.gr", true
-                ),
-                arrayOf(
-                    "test6.gr", true
-                ),
-                arrayOf(
-                    "test7.gr", true
-                )
-            )
-        }
-
-    }
 }
