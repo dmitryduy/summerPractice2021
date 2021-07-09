@@ -86,8 +86,8 @@ class VisualisedVertex(
                 }
             }
             a.setOnMouseExited{
-                if (gc.state != GraphControllerState.CHOOSINGSECONDVERTEX)
-                    gc.highlightVertices(listOf(this), Color.BLACK)
+                if (gc.state != GraphControllerState.CHOOSINGSECONDVERTEX && gc.state != GraphControllerState.RUNNING_ALGORITHM)
+                    gc.highlightVertices(listOf(this), Color.BLACK, 2.0)
             }
         }
     }
@@ -120,7 +120,7 @@ class VisualisedEdge(
             a.setOnMouseEntered{
                 when(gc.state){
                     GraphControllerState.NOTEDITING -> {
-                        gc.highlightEdges(listOf(this), width = 5.0, color = Color.GREEN, type = "bold", labelColor = Color.rgb(21, 61, 9), fontSize = 25.0)
+                        gc.highlightEdges(listOf(this), width = 5.0, color = Color.rgb(103, 99, 98), type = "bold", labelColor = Color.BLACK , fontSize = 25.0)
                         gc.hightLightWithOpacity(this)
                     }
                     GraphControllerState.DELETINGEDGE -> {
@@ -131,7 +131,8 @@ class VisualisedEdge(
             //restore original styles
             a.setOnMouseExited{
                 when(gc.state){
-                    in GraphControllerState.values() -> {
+                    GraphControllerState.RUNNING_ALGORITHM -> {}
+                    else -> {
                         gc.highlightEdges(listOf(this), width = 2.0, type = "normal", color = Color.BLACK, labelColor = Color.BLACK, fontSize = 17.0)
                         gc.restoreOpacities()
                     }
