@@ -36,7 +36,7 @@ class DijkstraStep(
             }
             DijkstraState.UpdatedTable -> {
                 if (table.size != 1) {
-                    message = "Обновлена таблица. "
+                    message = "Обновлена таблица.\n"
                     val first = "Поменялись значения для следующих вершин: "
                     var testFirst = ""
                     val prev = table[table.size - 2]

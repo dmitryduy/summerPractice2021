@@ -1,7 +1,9 @@
 package com.example.painter
-
+import com.example.visualised.*
 import com.example.graph.*
+import com.example.graphcontroller.*
 import javafx.geometry.Insets
+import javafx.scene.Node
 import javafx.scene.control.Label
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
@@ -23,8 +25,9 @@ class Arrow @JvmOverloads constructor(
     }
 
     init {
-        strokeProperty().bind(fillProperty())
+        //strokeProperty().bind(fillProperty())
         setFill(Color.BLACK)
+        setStrokeWidth(2.0)
 
         //Line
         getElements().add(MoveTo(startX, startY))
@@ -49,6 +52,7 @@ class Arrow @JvmOverloads constructor(
 
     }
 }
+
 fun shortenedLine(line : Line, len: Double): Line{
     val x2 = line.endX
     val x1 = line.startX
@@ -82,23 +86,65 @@ fun returnPoint(x1: Double, x2: Double, y1: Double, y2: Double, distance: Double
     var y3 = k * x3 + b
     return Pair(x3, y3)
 }
-fun drawLoop(x: Double, y: Double, angle: Double = 0.0): Pane{
-    var p = Pane()
+fun drawLoop(x: Double, y: Double, angle: Double = 0.0): List<Node>{
+    var nodesList =  mutableListOf<Node>()
     val xpar = 30
     val ypar = 15
     var x = x + 25.0
-    p.add(Line(x, y, x + xpar, y - ypar))
-    p.add(Line(x, y, x + xpar, y + ypar))
+    nodesList.add(Line(x, y, x + xpar, y - ypar))
+    nodesList.add(Line(x, y, x + xpar, y + ypar))
+
     var cc = CubicCurve(x + xpar, y + ypar, x + 2*xpar, y + ypar + 10, x + 2 *xpar, y - ypar - 10, x + xpar, y - ypar)
     cc.fill = Color.TRANSPARENT
     cc.stroke = Color.BLACK
-    p.add(cc)
-    p.add(Arrow(x + xpar, y + ypar, x, y, 10.0, true))
-    return p
+    cc.strokeWidth = 2.0
+    nodesList.add(cc)
+    nodesList.add(Arrow(x + xpar, y + ypar, x, y, 10.0, true))
+    for (line in nodesList)
+        if (line is Line)
+            line.strokeWidth = 2.0
+    return nodesList
+}
+fun drawCurvedEdge(edge: VisualisedEdge, curveSide: Boolean): VisualisedEdge{
+
+    var edgePane = Pane()
+    val dist = 45.0
+    val startX = edge.startX
+    val startY = edge.startY
+    val endX = edge.endX
+    val endY = edge.endY
+    val mul = if (curveSide) -1 else 1
+    var curvePair = returnPoint(startX, endX, startY, endY, dist, mul)
+    val centerX = curvePair.first
+    val centerY = curvePair.second
+    val curve = QuadCurve(
+        startX,
+        startY,
+        centerX,
+       centerY,
+        endX,
+        endY
+    )
+
+    curve.fill = Color.TRANSPARENT
+    curve.stroke = Color.BLACK
+    edgePane.add(curve)
+    edgePane.add(Arrow(curvePair.first, curvePair.second, curve.endX, curve.endY, 10.0, true))
+    //curvePair = returnPoint(startX, endX, startY, endY, dist / 2, mul)
+    //centerX = curvePair.first
+    //centerY = curvePair.second
+    val pointOfLabel = returnPoint(startX, endX, startY, endY, dist / 2, mul)
+    var lb = Label(edge.edge.third.toString())
+    lb.layoutX = pointOfLabel.first
+    lb.layoutY = pointOfLabel.second
+    edgePane.add(lb)
+    edge.nodesList.clear()
+    for (a in edgePane.children)
+        edge.nodesList.add(a)
+    return edge
 }
 class Painter{
-
-    private fun paintVertex(v: Vertex, x: Double, y: Double, rad: Double = 25.0): StackPane {
+    fun paintVertex(v: Vertex, x: Double, y: Double, rad: Double = 25.0): StackPane {
 
         var circle =  Circle()
         circle.setRadius(rad)
@@ -110,80 +156,22 @@ class Painter{
         var s = StackPane(circle, lb)
         s.layoutX = x
         s.layoutY = y
-        s.maxHeight = 30.0
-        s.maxWidth = 30.0
+        s.prefHeight = 30.0
+        s.prefWidth = 30.0
         return s
     }
-    fun paintGraph(g: Graph): Pane{
+    fun paintGraph(vGraph: VisualGraph): Pane{
         var p = Pane()
-        p.maxHeight = 300.0
-        p.maxWidth = 300.0
-        val r = 200.0
-        val num = g.getVertices().size
-        var vwc = mutableListOf<Triple<Vertex, Double, Double>>() //vertices with coordinates
-        for (i in 0 until num){
-            val cntr = p.maxHeight / 2 + 100.0
-            val circle_x = r * Math.cos(2 * Math.PI * i/num) + cntr
-            val circle_y = r * Math.sin(2 * Math.PI * i/num) + cntr
-            //p.add(paintVertex(g.getVertices()[i], circle_x, circle_y))
-            vwc.add(Triple(g.getVertices()[i], circle_x + 25.0, circle_y + 25.0))
+        p.maxHeight = 500.0
+        p.maxWidth = 500.0
+        for (vv in vGraph.vertices){
+            for (node in vv.nodesList)
+                p.add(node)
         }
-        var numberEdge = 0
-        for (a in 0 until g.getMatrix().size){
-            for (b in 0 until g.getMatrix()[a].size){
-                // println(g.getMatrix()[a][b])
-                if (g.getMatrix()[a][b] > 0) {
-                    val startX = vwc[a].second
-                    val startY = vwc[a].third
-                    val line = Line(vwc[a].second, vwc[a].third, vwc[b].second, vwc[b].third)
-                    var edge = shortenedLine(line, 25.0)
-                    val endX = edge.endX
-                    val endY = edge.endY
-                    var centerX = (edge.endX + edge.startX) / 2
-                    var centerY = (edge.endY + edge.startY) / 2
-                    val dist = 45.0
-                    if (a == b){
-                        p.add(drawLoop(startX, startY))
-                    }
-                    else
-                    if (g.getMatrix()[b][a] > 0) {
-                        val mul = if (b > a) -1 else 1
-                        var curvePair = returnPoint(startX, endX, startY, endY, dist, mul)
-                        centerX = curvePair.first
-                        centerY = curvePair.second
-                        val curve = QuadCurve(
-                            startX,
-                            startY,
-                            centerX,
-                            centerY,
-                            endX,
-                            endY
-                        )
+        for (ee in vGraph.edges)
+            for (node in ee.nodesList)
+                p.add(node)
 
-                        curve.fill = Color.TRANSPARENT
-                        curve.stroke = Color.BLACK
-                        p.add(curve)
-                        p.add(Arrow(curvePair.first, curvePair.second, curve.endX, curve.endY, 10.0, true))
-                        curvePair = returnPoint(startX, endX, startY, endY, dist / 2, mul)
-                        centerX = curvePair.first
-                        centerY = curvePair.second
-                    }
-                    else
-                        p.add(Arrow(edge.startX, edge.startY, edge.endX, edge.endY, 10.0))
-
-                    val weight = Label(g.getMatrix()[a][b].toString())
-                    weight.setStyle("-fx-font-smoothing-type: lcd; -fx-fill: white; -fx-font-size: 15pt;")
-                    weight.layoutX = centerX + if (a == b) 25.0 * 2.2 else 0.0
-                    weight.layoutY = centerY - if (a == b) 15.0 else 0.0
-                  //  weight.background = Background(BackgroundFill(Color.rgb(223, 223, 223), CornerRadii(5.0), Insets(-5.0)))
-                    p.add(weight)
-                }
-            }
-        }
-        for (e in vwc){
-            p.add(paintVertex(e.first, e.second - 25.0, e.third - 25.0))
-        }
-        // p.setStyle("-fx-border-color: black");
         return p
     }
 }

@@ -2,15 +2,18 @@ package com.example.view
 
 import com.example.dijkstra.*
 import com.example.graph.*
-import com.example.graphcontroller.GraphController
+import com.example.graphcontroller.*
 import com.example.layout.Layout
 import tornadofx.*
 import com.example.painter.*
+import com.example.visualised.*
 import javafx.application.Platform
+import javafx.geometry.Pos
 import javafx.scene.control.*
 
 import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.VBox
+import javafx.scene.paint.Color
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
@@ -49,9 +52,12 @@ class MainView : View("Алгоритм Дейкстры") {
     private var arrayPaths: ArrayList<String> = ArrayList()//пути рассчитываются один раз
     private var countPaths: Int = 0//количество путей на текущем шаге
     private var currentStep = -1
-    private var isSetGraph = false
     private val layout = Layout()
-
+    private val deleteVertexButton: MenuItem by fxid("deleteVertexButton")
+    private val addVertexButton: MenuItem by fxid("addVertexButton")
+    private val addEdgeButton: MenuItem by fxid("addEdgeButton")
+    private val deleteEdgeButton: MenuItem by fxid("deleteEdgeButton")
+    private val graphController = GraphController()
 
     init {
         layout.stylizeTextField(currentOrderLabel)
@@ -61,8 +67,21 @@ class MainView : View("Алгоритм Дейкстры") {
         layout.setButtonAnimation(rightButton)
         layout.setButtonAnimation(rect)
 
-        var gr: Graph? = Graph()
-        val graphController = GraphController()
+
+        root.add(graphController.wholePane)
+
+        deleteVertexButton.setOnAction {
+            graphController.state = GraphControllerState.DELETINGVERTEX
+        }
+        addVertexButton.setOnAction{
+            graphController.state = GraphControllerState.ADDINGVERTEX
+        }
+        addEdgeButton.setOnAction{
+            graphController.state = GraphControllerState.CHOOSINGFIRSTVERTEX
+        }
+        deleteEdgeButton.setOnAction{
+            graphController.state = GraphControllerState.DELETINGEDGE
+        }
 
         rightButton.setOnMouseClicked {
 
@@ -78,6 +97,7 @@ class MainView : View("Алгоритм Дейкстры") {
 
             if (layout.getStep() == temp.dijkstraSteps.size - 1) {
                 rightButton.isDisable = true
+                graphController.state = GraphControllerState.NOTEDITING
             }
             if (temp.dijkstraSteps[layout.getStep()].getState() == DijkstraState.UpdatedPath && countPaths != arrayPaths.size) {
                 countPaths++
@@ -130,9 +150,16 @@ class MainView : View("Алгоритм Дейкстры") {
         }
 
         startByStep.setOnAction {
-            setGraphError.isVisible = !isSetGraph
-            if (!isByStepStarted && isSetGraph) {
+            setGraphError.isVisible = !graphController.graphIsSet
+            if (graphController.graph != null && graphController.graphIsSet){
+                val d = Dijkstra()
+                temp = d.makeAlgorithm(graphController.graph!!, graphController.graph!!.getVertices()[0])
+                graphController.graph!!.getVertices().forEach {vertexes.add(it)}
+                arrayPaths = getPaths(temp)
+            }
+            if (!isByStepStarted && graphController.graphIsSet) {
                 isByStepStarted = true
+                graphController.state = GraphControllerState.RUNNING_ALGORITHM
                 startAlgorithmContainer.isDisable = true
 
                 rightButton.isDisable = false
@@ -143,16 +170,22 @@ class MainView : View("Алгоритм Дейкстры") {
         }
 
         autoplay.setOnAction {
-            setGraphError.isVisible = !isSetGraph
-            if (!isAutoplayStarted && isSetGraph) {
+            setGraphError.isVisible = !graphController.graphIsSet
+            if (graphController.graph != null && graphController.graphIsSet){
+                val d = Dijkstra()
+                temp = d.makeAlgorithm(graphController.graph!!, graphController.graph!!.getVertices()[0])
+                graphController.graph!!.getVertices().forEach {vertexes.add(it)}
+                arrayPaths = getPaths(temp)
+            }
+            if (!isAutoplayStarted && graphController.graphIsSet) {
                 clearTimer = false
                 startAlgorithmContainer.isDisable = true
                 isAutoplayStarted = true
                 rect.isDisable = false
+                graphController.state = GraphControllerState.RUNNING_ALGORITHM
                 layout.incrementStep()
                 changeInterface()
                 firstLoad = true
-
 
             }
         }
@@ -160,11 +193,11 @@ class MainView : View("Алгоритм Дейкстры") {
         buildGraphFromFileButton.setOnAction {
             rect.isDisable = true
             rect.style = "-fx-shape: 'M32 32 L32 44 L42 38';-fx-background-color: green"
-            gr = graphController.buildFromFile()
+            graphController.buildFromFile(graphController.getFileNameFromDialog())
             if (isAutoplayStarted)
                 clearTimer = true
             clearLayout()
-            buildGraph(gr)
+            buildGraph(graphController)
         }
 
         randomGraphBuildButton.setOnAction {
@@ -173,13 +206,13 @@ class MainView : View("Алгоритм Дейкстры") {
             if (isAutoplayStarted)
                 clearTimer = true
             clearLayout()
-            gr = Graph(GraphType.RandomGraph)
-            buildGraph(gr)
+            graphController.randomBuild()
+            buildGraph(graphController)
         }
 
-        saveToFileButton.setOnAction {
-            if (gr != null && gr?.getVertices()?.size != 0)
-                graphController.saveToFile(gr!!)
+        saveToFileButton.setOnAction{
+            if (graphController.graph != null && graphController.graph?.getVertices()?.size != 0)
+                graphController.saveToFile()
         }
     }
 
@@ -191,6 +224,7 @@ class MainView : View("Алгоритм Дейкстры") {
                     if (layout.getStep() == temp.dijkstraSteps.size - 1) {
                         isAutoplayStarted = false
                         rect.isDisable = true
+                        graphController.state = GraphControllerState.NOTEDITING
                     }
 
 
@@ -217,7 +251,7 @@ class MainView : View("Алгоритм Дейкстры") {
         byButton = false
         startAlgorithmContainer.isDisable = false
         setGraphError.isVisible = false
-        isSetGraph = true
+        graphController.graphIsSet = true
         if (root.getChildList()?.size == 2) {
             root.getChildList()?.remove(root.getChildList()?.get(1))
         }
@@ -331,6 +365,7 @@ class MainView : View("Алгоритм Дейкстры") {
     private fun changeInterface() {
         val currentStepInfo = temp.dijkstraSteps[layout.getStep()]
         currentActionText.text = currentStepInfo.getMessage()
+
         when (currentStepInfo.getState()) {
             DijkstraState.Start -> initInterface(currentStepInfo)
 
@@ -355,16 +390,63 @@ class MainView : View("Алгоритм Дейкстры") {
 
     }
 
-    private fun updateVertex(currentStepInfo: DijkstraStep) {
+    private fun updateVertex(currentStepInfo: DijkstraStep){
         updateEveryStep(currentStepInfo)
         val currentVertex = currentStepInfo.getCurrVertex()
         // обновляется текущее действие
+		
+		//------подсветка текущей вершины и ее соседей
+        var noQueueList = mutableListOf<VisualisedEdge>()
+        var inQueueList = mutableListOf<VisualisedEdge>()
+        var queueList = mutableListOf<Vertex>()
+        graphController.restoreEdgesStyles()
+        graphController.restoreVerticesStyle()
+        currentStepInfo.getQueue().forEach{
+            queueList.add(it.first)
+        }
+        graphController.visualEdges.forEach{
+            if (it.edge.first.getValue() == currentVertex.getValue()){
+                if (it.edge.second in queueList){
+
+                    inQueueList.add(it)
+                }
+                else{
+                    noQueueList.add(it)
+                }
+            }
+        }
+        graphController.highlightVertices(listOf(graphController.getVisualVertex(currentVertex)!!), Color.LIGHTGREEN)
+        graphController.highlightEdges(inQueueList, Color.LIGHTGREEN, Color.DARKGREEN)
+        graphController.highlightEdges(noQueueList, Color.LIGHTGRAY, Color.DARKGRAY)
+		//----------
     }
 
-    private fun updatePath(currentStepInfo: DijkstraStep) {
+    private fun updatePath(currentStepInfo: DijkstraStep){
         updateEveryStep(currentStepInfo)
         // обновляется текущее действие
         currentActionText.text += arrayPaths[countPaths-1]
+		
+        //-----подсветка ребер и вершин входящих в найденный путь
+        graphController.restoreVerticesStyle()
+        graphController.restoreEdgesStyles()
+        var eList = mutableListOf<VisualisedEdge>()
+        var vList = mutableListOf<Vertex>()
+        var initial = currentStepInfo.getPath(currentStepInfo.getCurrVertex()).split("->")
+        initial.forEach{
+                val v = graphController.graph!!.getVertex(it.substringBeforeLast("="))
+                if (v != null)
+                vList.add(v)
+        }
+            for (h in 0 until vList.size - 1){
+            eList.add(graphController.getVisualEdge(vList[h], vList[h + 1])!!)
+        }
+        val vvList = mutableListOf<VisualisedVertex>()
+        vList.forEach{
+            vvList.add(graphController.getVisualVertex(it)!!)
+        }
+        graphController.highlightEdges(eList, Color.GREEN, Color.DARKGREEN)
+        graphController.highlightVertices(vvList, Color.GREEN)
+		//--------
     }
 
     private fun updateQueue(currentStepInfo: DijkstraStep) {
@@ -379,19 +461,16 @@ class MainView : View("Алгоритм Дейкстры") {
     }
 
 
-    private fun buildGraph(graph: Graph?) {
+    private fun buildGraph(controller: GraphController) {
 
-        if (graph != null) {
-            val a = Dijkstra()
-            val p = Painter()
-            temp = a.makeAlgorithm(graph, graph.getVertices()[0])//возвращает Dijkstrasteps()
-            graph.getVertices().forEach { vertexes.add(it) }
-            arrayPaths = getPaths(temp)
-            val graphPane = p.paintGraph(graph)
-            graphPane.layoutY = 20.0
+        val graph = controller.graph
+        if (graph != null){
+            val graphPane = controller.wholePane
+            graphPane.layoutY = 30.0
             root.add(graphPane)
-        } else {
-            isSetGraph = false
+        }
+        else {
+            graphController.graphIsSet = false
             setGraphError.isVisible = true
         }
 
