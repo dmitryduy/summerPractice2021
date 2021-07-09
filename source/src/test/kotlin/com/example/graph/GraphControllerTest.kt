@@ -1,6 +1,8 @@
 package com.example.graph
 
-import org.junit.jupiter.api.Assertions
+import com.example.graphcontroller.GraphController
+import com.example.graphcontroller.showErrorAlert
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -8,55 +10,8 @@ import org.junit.runners.Parameterized
 import tornadofx.isInt
 import java.io.File
 import java.io.InputStream
-import kotlin.test.assertEquals
 
-internal class GraphTest() {
-    var data: String? = null
-
-    @DisplayName("GraphTest")
-    @ParameterizedTest
-    @MethodSource("graphs")
-    fun test(path: String) {
-        var gr = copyBuildFromFile("src/test/kotlin/tests/Graph/" + path)
-        if (gr == null) {
-            assertEquals(1, 2)
-            return
-        }
-        val matrix = gr.getMatrix()
-        val vertexes = gr.getVertices()
-        val inputStream: InputStream
-        inputStream = File("src/test/kotlin/tests/Graph/" + path).inputStream()
-        val strs = mutableListOf<String>()
-        inputStream.bufferedReader().useLines { lines -> lines.forEach { strs.add(it) } }
-        val size = strs.first()
-        assertEquals(size, matrix.size.toString())
-        val rowsElements = mutableListOf<List<String>>()
-        for (i in 1 until strs.size - 1) {
-            rowsElements.add(strs[i].split(" "))
-            for (a in rowsElements.indices) {
-                for (b in rowsElements.indices) {
-                    assertEquals(
-                        rowsElements[a][b].toInt(), matrix.get(a).get(b)
-                    )
-                }
-            }
-        }
-    }
-
-    companion object {
-        @JvmStatic
-        @Parameterized.Parameters
-        fun graphs(): Collection<Array<Any>> {
-            return listOf(
-                arrayOf("test1.gr"),         // First test:  (paramOne = 1, paramTwo = "I")
-                arrayOf("test2.gr"), // Second test: (paramOne = 1999, paramTwo = "MCMXCIX")
-                arrayOf("test3.gr"), // Second test: (paramOne = 1999, paramTwo = "MCMXCIX")
-                arrayOf("test4.gr"),// Second test: (paramOne = 1999, paramTwo = "MCMXCIX")
-                arrayOf("test5.gr"), // Second test: (paramOne = 1999, paramTwo = "MCMXCIX")
-                arrayOf("test6.gr") // Second test: (paramOne = 1999, paramTwo = "MCMXCIX")
-            )
-        }
-    }
+internal class GraphControllerTest {
 
     fun copyBuildFromFile(fileName: String?): Graph? {
         var g = Graph()
@@ -142,4 +97,43 @@ internal class GraphTest() {
         return null
     }
 
+    @DisplayName("GraphControllerTest")
+    @ParameterizedTest
+    @MethodSource("graphs")
+    fun test(path: String, boolean: Boolean) {
+        val gr = copyBuildFromFile("src/test/kotlin/tests/GraphController/" + path)
+        assertEquals(gr == null, boolean)
+    }
+
+    //имена объектов
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters
+        fun graphs(): Collection<Array<Any?>> {
+            return listOf(
+                arrayOf(
+                    "test1.gr", false
+                ),
+                arrayOf(
+                    "test2.gr", true
+                ),
+                arrayOf(
+                    "test3.gr", true
+                ),
+                arrayOf(
+                    "test4.gr", true
+                ),
+                arrayOf(
+                    "test5.gr", true
+                ),
+                arrayOf(
+                    "test6.gr", true
+                ),
+                arrayOf(
+                    "test7.gr", true
+                )
+            )
+        }
+
+    }
 }

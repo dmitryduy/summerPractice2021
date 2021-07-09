@@ -1,44 +1,51 @@
 package com.example.graph
 
-import org.junit.jupiter.api.Assertions
+import com.example.dijkstra.Dijkstra
+import com.example.dijkstra.DijkstraSteps
+import com.example.dijkstra.MyComparatorPaths
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.junit.runners.Parameterized
 import tornadofx.isInt
+import tornadofx.stringProperty
 import java.io.File
 import java.io.InputStream
 import kotlin.test.assertEquals
 
-internal class GraphTest() {
-    var data: String? = null
+internal class DijkstraTest {
+    private val arrayPaths: ArrayList<String> = ArrayList<String>()
+    private fun getPaths(dijkstraSteps: DijkstraSteps, vertexes: ArrayList<Vertex>): ArrayList<String> {
+        arrayPaths.clear()
 
-    @DisplayName("GraphTest")
-    @ParameterizedTest
-    @MethodSource("graphs")
-    fun test(path: String) {
-        var gr = copyBuildFromFile("src/test/kotlin/tests/Graph/" + path)
-        if (gr == null) {
-            assertEquals(1, 2)
-            return
+        vertexes.forEach {
+            val curr = dijkstraSteps.getResult().getPath(it)
+            if (curr != "=") {
+                arrayPaths.add(curr)
+            }
         }
-        val matrix = gr.getMatrix()
-        val vertexes = gr.getVertices()
-        val inputStream: InputStream
-        inputStream = File("src/test/kotlin/tests/Graph/" + path).inputStream()
-        val strs = mutableListOf<String>()
-        inputStream.bufferedReader().useLines { lines -> lines.forEach { strs.add(it) } }
-        val size = strs.first()
-        assertEquals(size, matrix.size.toString())
-        val rowsElements = mutableListOf<List<String>>()
-        for (i in 1 until strs.size - 1) {
-            rowsElements.add(strs[i].split(" "))
-            for (a in rowsElements.indices) {
-                for (b in rowsElements.indices) {
-                    assertEquals(
-                        rowsElements[a][b].toInt(), matrix.get(a).get(b)
-                    )
-                }
+
+        val sortedList = arrayPaths.sortedWith(MyComparatorPaths())
+        arrayPaths.clear()
+        for (i in sortedList) {
+            arrayPaths.add(i)
+        }
+        return arrayPaths
+    }
+
+    @DisplayName("DijkstraTest")
+    @ParameterizedTest
+    @MethodSource("graphsDijkstra")
+    fun test(path: String, expectedPaths: Array<String>) {
+        val gr = copyBuildFromFile("src/test/kotlin/tests/Graph/" + path)
+        val a = Dijkstra()
+        var steps: DijkstraSteps?
+        if (gr != null) {
+            steps = a.makeAlgorithm(gr, Vertex("A", 0))
+            val paths = getPaths(steps, gr.getVertices())
+            assertEquals(expectedPaths.size, paths.size)
+            for (i in 0..expectedPaths.size-1) {
+                assertEquals(expectedPaths[i], paths[i])
             }
         }
     }
@@ -46,14 +53,40 @@ internal class GraphTest() {
     companion object {
         @JvmStatic
         @Parameterized.Parameters
-        fun graphs(): Collection<Array<Any>> {
+        fun graphsDijkstra(): Collection<Array<Any>> {
             return listOf(
-                arrayOf("test1.gr"),         // First test:  (paramOne = 1, paramTwo = "I")
-                arrayOf("test2.gr"), // Second test: (paramOne = 1999, paramTwo = "MCMXCIX")
-                arrayOf("test3.gr"), // Second test: (paramOne = 1999, paramTwo = "MCMXCIX")
-                arrayOf("test4.gr"),// Second test: (paramOne = 1999, paramTwo = "MCMXCIX")
-                arrayOf("test5.gr"), // Second test: (paramOne = 1999, paramTwo = "MCMXCIX")
-                arrayOf("test6.gr") // Second test: (paramOne = 1999, paramTwo = "MCMXCIX")
+                arrayOf(
+                    "test3.gr", arrayOf("A=0", "A->B=1", "A->C=1", "A->D=1", "A->E=1")
+                ),
+                arrayOf(
+                    "test1.gr",
+                    arrayOf(
+                        "A=0",
+                        "A->B=4",
+                        "A->B->C=8",
+                        "A->B->F=11",
+                        "A->B->F->E=15",
+                        "A->B->C->G=15",
+                        "A->B->C->G->D=16",
+                        "A->B->F->E->I=19",
+                        "A->B->F->J=21",
+                        "A->B->C->G->L=21",
+                        "A->B->C->G->D->H=22",
+                        "A->B->C->G->K=22"
+                    )
+                ),
+                arrayOf(
+                    "test2.gr", arrayOf("A=0")
+                ),
+                arrayOf(
+                    "test4.gr", arrayOf("A=0", "A->B=1")
+                ),
+                arrayOf(
+                    "test5.gr", arrayOf("A=0")
+                ),
+                arrayOf(
+                    "test6.gr", arrayOf("A=0", "A->B=1", "A->D=1", "A->B->C=2", "A->B->E=2")
+                )
             )
         }
     }
@@ -111,7 +144,7 @@ internal class GraphTest() {
             if (rowsNum != n) {
                 return null
             }
-            for (a in strs?.last()?.split(" ")) {
+            for (a in strs.last().split(" ")) {
                 vertexList.add(a)
             }
             if (vertexList.size != n) {
