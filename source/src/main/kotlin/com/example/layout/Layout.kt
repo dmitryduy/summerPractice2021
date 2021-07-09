@@ -2,6 +2,7 @@ package com.example.layout
 
 
 import javafx.scene.control.Button
+import javafx.scene.control.TextArea
 import javafx.scene.control.TextField
 
 
@@ -43,6 +44,18 @@ class Layout {
             button.layoutX = button.layoutX - 1
             button.layoutY = button.layoutY - 1
         }
+    }
+
+    fun stylizeTextArea(textArea: TextArea) {
+        textArea.isEditable = false
+        textArea.isWrapText = true
+        textArea.style = "-fx-background-color: transparent;" +
+                " -fx-background-insets: 0; " +
+                "-fx-background-radius: 0; " +
+                "-fx-padding: 0;" +
+                "-fx-control-inner-background:#f4f4f4;"
+
+
     }
 
 }
