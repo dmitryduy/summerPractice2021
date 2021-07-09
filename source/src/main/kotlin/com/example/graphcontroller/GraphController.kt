@@ -11,15 +11,9 @@ import javafx.scene.control.TextInputDialog
 import javafx.scene.layout.Pane
 import javafx.scene.layout.StackPane
 import javafx.scene.shape.*
-import javafx.scene.text.Font
 import tornadofx.*
 import java.io.InputStream
 import com.example.visualised.*
-import javafx.scene.layout.Background
-import javafx.scene.layout.BackgroundFill
-import javafx.scene.text.FontWeight
-import org.intellij.lang.annotations.JdkConstants
-import java.io.IOException
 
 enum class GraphControllerState{
     NOTEDITING, CHOOSINGFIRSTVERTEX, CHOOSINGSECONDVERTEX, ADDINGVERTEX, DELETINGEDGE, DELETINGVERTEX, RUNNING_ALGORITHM
@@ -134,6 +128,7 @@ class GraphController {
                 g.addEdge(e.first, e.second, e.third)
             }
             graph = g!!
+            graphIsSet = true
             buildVisual()
             return graph
         }
@@ -141,6 +136,7 @@ class GraphController {
     }
     fun randomBuild(){
         graph = Graph(GraphType.RandomGraph)
+        graphIsSet = true
         buildVisual()
     }
     fun getVisualisedGraph(): Pane{
@@ -156,6 +152,7 @@ class GraphController {
     var wholePane = Pane()
     var gPane = Pane()
     var vertexCircle = StackPane()
+    var graphIsSet = false
     init{
         state = GraphControllerState.NOTEDITING
         graph = Graph()
@@ -168,7 +165,8 @@ class GraphController {
         wholePane.add(gPane)
         wholePane.add(vertexCircle)
         wholePane.setOnMouseClicked{
-            updateVisualEdges()
+            if (state == GraphControllerState.NOTEDITING)
+                updateVisualEdges()
         }
         vertexCircle.isVisible = false
         wholePane.setOnMouseEntered{
@@ -199,6 +197,7 @@ class GraphController {
                     addVisualVertex(it.sceneX, it.sceneY)
                     state = GraphControllerState.NOTEDITING
                     vertexCircle.isVisible = false
+                    graphIsSet = true
                 }
             }
         }
@@ -259,6 +258,13 @@ class GraphController {
                 for (a in eee.nodesList)
                     a.opacity = 1.0
         }
+    }
+    fun restoreEdgesStyles(){
+
+        highlightEdges(visualEdges, width = 2.0, type = "normal", color = Color.BLACK, labelColor = Color.BLACK, fontSize = 17.0)
+    }
+    fun restoreVerticesStyle(){
+        highlightVertices(visualVertices, Color.BLACK, 2.0)
     }
     fun updateVisualEdges(offset: Double = 0.0){
         //edges
@@ -355,8 +361,8 @@ class GraphController {
         }
         graph!!.addVertex(name)
         val v = graph!!.getVertex(name)
-        var vPane = painter.paintVertex(v!!, x - 18, y - 35, 25.0)
-        var vvvv = VisualisedVertex(this, v, xy = Pair(x + 7, y - 10), nodesList = mutableListOf(vPane))
+        val vPane = painter.paintVertex(v!!, x - 18, y - 35, 25.0)
+        val vvvv = VisualisedVertex(this, v, xy = Pair(x + 7, y - 10), nodesList = mutableListOf(vPane))
         visualVertices.add(vvvv)
         updateVisualEdges()
     }
@@ -367,9 +373,10 @@ class GraphController {
             a.removeFromParent()
         updateVisualEdges()
     }
-    fun highlightEdges(edgesToHighlight: List<VisualisedEdge>, color: Color, labelColor: Color, width: Double, fontSize: Double, type: String = ""){
+    fun highlightEdges(edgesToHighlight: List<VisualisedEdge>, color: Color, labelColor: Color, width: Double = 5.0, fontSize: Double = 25.0, type: String = "bold"){
         for (e in edgesToHighlight){
             for (node in e.nodesList){
+                node.toFront()
                 when (node){
                     is QuadCurve -> {
                         node.strokeWidth = width
@@ -395,11 +402,13 @@ class GraphController {
             }
         }
     }
-    fun highlightVertices( verticesToHighLight: List<VisualisedVertex>, color: Color){
+    fun highlightVertices( verticesToHighLight: List<VisualisedVertex>, color: Color,width: Double = 3.5){
         for (ver in verticesToHighLight)
             for (cir in ver.nodesList!!.last()!!.getChildList()!!)
-                if (cir is Circle)
+                if (cir is Circle) {
                     cir.stroke = color
+                    cir.strokeWidth = width
+                }
     }
     fun changeLayout(vv: VisualisedVertex, x: Double, y: Double){
 
@@ -413,12 +422,12 @@ class GraphController {
     }
     fun saveToFile(){
 
-        var fileChooser = FileChooser()
+        val fileChooser = FileChooser()
         fileChooser.getExtensionFilters().add(FileChooser.ExtensionFilter(
             "Graph files",
             "*.gr"
         ))
-        var f: File? = fileChooser.showSaveDialog(null)
+        val f: File? = fileChooser.showSaveDialog(null)
         if (f != null && graph != null) {
             var text = "${graph!!.getVertices().size}\n"
             for (a in graph!!.getMatrix().indices) {
@@ -435,11 +444,11 @@ class GraphController {
 }
 fun vertexCursor(gController: GraphController): StackPane{
 
-    var ve = gController.painter.paintVertex(Vertex("?", 0), 0.0, 0.0, 25.0)
+    val ve = gController.painter.paintVertex(Vertex("?", 0), 0.0, 0.0, 25.0)
     return ve
 }
 fun getStringFromTextInput(): String?{
-    var dialog = TextInputDialog()
+    val dialog = TextInputDialog()
     dialog.headerText = ""
     dialog.contentText = "Введите имя вершины"
     val string = dialog.showAndWait()
