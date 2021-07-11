@@ -1,3 +1,5 @@
+
+
 package com.example.view
 
 import com.example.dijkstra.*
@@ -15,6 +17,8 @@ import javafx.scene.layout.AnchorPane
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
+import java.io.File
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
@@ -67,6 +71,7 @@ class MainView : View("Алгоритм Дейкстры") {
     private val graphController = GraphController()
 
     init {
+        layout.writeLogs("Запущена программа")
         layout.stylizeTextField(currentOrderLabel)
         layout.stylizeTextArea(currentActionText)
         layout.stylizeTextArea(foundPathsText)
@@ -80,20 +85,25 @@ class MainView : View("Алгоритм Дейкстры") {
 
         deleteVertexButton.setOnAction {
             graphController.state = GraphControllerState.DELETINGVERTEX
+            layout.writeLogs("Удалена вершина")
         }
         addVertexButton.setOnAction {
             graphController.state = GraphControllerState.ADDINGVERTEX
+            layout.writeLogs("Добавлена вершина")
         }
         addEdgeButton.setOnAction {
             graphController.state = GraphControllerState.CHOOSINGFIRSTVERTEX
+            layout.writeLogs("Добавлено ребро")
         }
         deleteEdgeButton.setOnAction {
             graphController.state = GraphControllerState.DELETINGEDGE
+            layout.writeLogs("Удалено ребро")
         }
 
         nextStepButton.setOnMouseClicked {
             prevStepButton.isDisable = false
             if (layout.getStep() < temp.dijkstraSteps.size - 1) {
+                layout.writeLogs("Переход на следующий шаг")
                 layout.incrementStep()
             }
 
@@ -112,11 +122,14 @@ class MainView : View("Алгоритм Дейкстры") {
         pauseButton.setOnMouseClicked {
 
             if (byButton || firstLoad) {
+                if (!firstLoad)
+                    layout.writeLogs("Автоматическая визуализация графа запущена снова")
                 firstLoad = false
                 byButton = false
                 pauseButton.style = RECORD_BUTTON_STYLES
                 setInterval()
             } else {
+                layout.writeLogs("Автоматическая визуализация графа остановлена")
                 byButton = true
                 clearTimer = true
                 pauseButton.style = PAUSE_BUTTON_STYLES
@@ -128,11 +141,11 @@ class MainView : View("Алгоритм Дейкстры") {
 
             nextStepButton.isDisable = false
 
-
-            if (layout.getStep() == 0) {
+            if (layout.getStep() == 1) {
                 prevStepButton.isDisable = true
             }
-            if (layout.getStep() != 0 ) {
+            if (layout.getStep() > 0 ) {
+                layout.writeLogs("Переход на предыдущий шаг")
                 layout.decrementStep()
                 if (temp.dijkstraSteps[layout.getStep() + 1].getState() == DijkstraState.UpdatedPath && countPaths != 0) {
                     countPaths--
@@ -148,6 +161,7 @@ class MainView : View("Алгоритм Дейкстры") {
             }
             setGraphError.isVisible = !graphController.graphIsSet
             if (graphController.graph != null && graphController.graphIsSet) {
+                layout.writeLogs("Запущена пошаговая визуализация")
                 val d = Dijkstra()
                 temp = d.makeAlgorithm(graphController.graph!!, graphController.graph!!.getVertices()[0])
                 graphController.graph!!.getVertices().forEach { vertexes.add(it) }
@@ -177,6 +191,7 @@ class MainView : View("Алгоритм Дейкстры") {
                 arrayPaths = getPaths(temp)
             }
             if (!isautoplayMenuButtonStarted && graphController.graphIsSet) {
+                layout.writeLogs("Запущена автоматическая визуализация")
                 clearTimer = false
                 startAlgorithmMenuButton.isDisable = true
                 isautoplayMenuButtonStarted = true
@@ -210,8 +225,10 @@ class MainView : View("Алгоритм Дейкстры") {
         }
 
         saveToFileButton.setOnAction {
-            if (graphController.graph != null && graphController.graph?.getVertices()?.size != 0)
+            if (graphController.graph != null && graphController.graph?.getVertices()?.size != 0) {
+                layout.writeLogs("Сохранение графа")
                 graphController.saveToFile()
+            }
         }
     }
 
@@ -358,6 +375,7 @@ class MainView : View("Алгоритм Дейкстры") {
                 }
             }
         })
+        layout.writeLogs("Таблица обновлена")
     }
 
     private fun setQueue(currentStepInfo: DijkstraStep, sortable: Boolean = false) {
@@ -400,19 +418,17 @@ class MainView : View("Алгоритм Дейкстры") {
 
     private fun initInterface(currentStepInfo: DijkstraStep) {
         updateEveryStep(currentStepInfo)
-        // Устанавливает текущее действие, в данном случае start
 
         setQueue(currentStepInfo)
 
         val currentVertex = currentStepInfo.getCurrVertex()
-        // к текущему действию прибавляется запись о начальной вершине
 
     }
 
     private fun updateVertex(currentStepInfo: DijkstraStep) {
         updateEveryStep(currentStepInfo)
         val currentVertex = currentStepInfo.getCurrVertex()
-        // обновляется текущее действие
+        layout.writeLogs("Текущая вершина обновлена. Новая текущая вершина: $currentVertex")
 
         //------подсветка текущей вершины и ее соседей
         var noQueueList = mutableListOf<VisualisedEdge>()
@@ -466,12 +482,19 @@ class MainView : View("Алгоритм Дейкстры") {
         graphController.highlightEdges(eList, Color.GREEN, Color.DARKGREEN)
         graphController.highlightVertices(vvList, Color.GREEN)
         //--------
+        layout.writeLogs("Найден новый путь: ${arrayPaths[countPaths - 1]}")
     }
 
     private fun updateQueue(currentStepInfo: DijkstraStep) {
         updateEveryStep(currentStepInfo)
         // обновляется текущее действие
         setQueue(currentStepInfo, true)
+        var text = ""
+        currentStepInfo.getQueue().forEach {
+            text += if (it.second == Integer.MAX_VALUE) "(${it.first} ∞)"
+            else "(${it.first} ${it.second})"
+        }
+        layout.writeLogs("Очередь обновлена. Текущая очередь: $text")
     }
 
     private fun updateTable(currentStepInfo: DijkstraStep) {
@@ -481,10 +504,11 @@ class MainView : View("Алгоритм Дейкстры") {
 
 
     private fun buildGraph(controller: GraphController) {
-
+        layout.writeLogs("Граф построен")
         val graph = controller.graph
         if (graph != null) {
             val graphPane = controller.wholePane
+            graphPane.layoutY = -50.0
             graphContainer.add(graphPane)
         } else {
             graphController.graphIsSet = false
@@ -492,5 +516,7 @@ class MainView : View("Алгоритм Дейкстры") {
         }
 
     }
+
+
 }
 

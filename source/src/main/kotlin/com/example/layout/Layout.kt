@@ -4,9 +4,16 @@ package com.example.layout
 import javafx.scene.control.Button
 import javafx.scene.control.TextArea
 import javafx.scene.control.TextField
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class Layout {
+    private val file = File("file.log")
+    init {
+        file.writeText("")
+    }
     private var currentStep = -1
 
     fun getStep(): Int {
@@ -56,6 +63,11 @@ class Layout {
                 "-fx-control-inner-background:#f4f4f4;"
 
 
+    }
+
+    fun writeLogs(text: String) {
+        val currentDate = SimpleDateFormat("dd-M-yyyy hh:mm:ss").format(Date())
+        file.appendText("$currentDate: $text\n")
     }
 
 }
