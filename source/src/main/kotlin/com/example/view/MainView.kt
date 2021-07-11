@@ -29,7 +29,7 @@ var isautoplayMenuButtonStarted = false
 var clearTimer = false
 var byButton = false
 var firstLoad = false
-const val DEBOUNCE_TIME: Long = 200
+
 const val CHANGE_STEP_TIME: Long = 500
 const val PAUSE_BUTTON_STYLES = "-fx-shape: 'M32 32 L32 44 L42 38';-fx-background-color: #10a341"
 const val RECORD_BUTTON_STYLES = "-fx-background-color: #f33535;-fx-shape: 'M44 0 L32 0 L32 64 L52 64 L52 0 L64 0 L64 64 L44 64'"
@@ -90,14 +90,8 @@ class MainView : View("Алгоритм Дейкстры") {
         }
 
         nextStepButton.setOnMouseClicked {
-
             prevStepButton.isDisable = false
             if (layout.getStep() < temp.dijkstraSteps.size - 1) {
-                nextStepButton.isDisable = true
-                thread {
-                    Thread.sleep(DEBOUNCE_TIME)
-                    nextStepButton.isDisable = false
-                }
                 layout.incrementStep()
             }
 
@@ -114,11 +108,7 @@ class MainView : View("Алгоритм Дейкстры") {
         }
 
         pauseButton.setOnMouseClicked {
-            pauseButton.isDisable = true
-            thread {
-                Thread.sleep(DEBOUNCE_TIME)
-                pauseButton.isDisable = false
-            }
+
             if (byButton || firstLoad) {
                 firstLoad = false
                 byButton = false
@@ -136,23 +126,18 @@ class MainView : View("Алгоритм Дейкстры") {
 
             nextStepButton.isDisable = false
 
-            if (layout.getStep() > 0) {
-                prevStepButton.isDisable = true
-                thread {
-                    Thread.sleep(DEBOUNCE_TIME)
-                    prevStepButton.isDisable = false
-                }
-
-                layout.decrementStep()
-            }
 
             if (layout.getStep() == 0) {
                 prevStepButton.isDisable = true
             }
-            if (temp.dijkstraSteps[layout.getStep() + 1].getState() == DijkstraState.UpdatedPath && countPaths != 0) {
-                countPaths--
+            if (layout.getStep() != 0 ) {
+                layout.decrementStep()
+                if (temp.dijkstraSteps[layout.getStep() + 1].getState() == DijkstraState.UpdatedPath && countPaths != 0) {
+                    countPaths--
+                }
+                changeInterface()
             }
-            changeInterface()
+
         }
 
         stepByStepButton.setOnAction {

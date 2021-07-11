@@ -6,10 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="a93d3f00-da5e-4788-b7c5-bba8117137dd" name="Default Changelist" comment="add_random_graph">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/MyApp.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/MyApp.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/layout/Layout.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/layout/Layout.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/view/MainView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/view/MainView.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/example/view/layout.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/example/view/layout.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -268,7 +265,8 @@
       <workItem from="1625648613107" duration="10625000" />
       <workItem from="1625734132861" duration="2110000" />
       <workItem from="1625745964039" duration="13033000" />
-      <workItem from="1625836256639" duration="1294000" />
+      <workItem from="1625836256639" duration="1678000" />
+      <workItem from="1625984593826" duration="340000" />
     </task>
     <task id="LOCAL-00001" summary="add_graph_and_tests">
       <created>1625403041046</created>
