@@ -10,6 +10,7 @@ import tornadofx.*
 import com.example.painter.*
 import com.example.visualised.*
 import javafx.application.Platform
+import javafx.fxml.FXML
 import javafx.geometry.Pos
 import javafx.scene.control.*
 
@@ -35,6 +36,7 @@ var byButton = false
 var firstLoad = false
 //reset alogrithm after autoplay finished
 var resetAlgorithm = false
+var startVertex = 0
 
 const val CHANGE_STEP_TIME: Long = 500
 const val PAUSE_BUTTON_STYLES = "-fx-shape: 'M32 32 L32 44 L42 38';-fx-background-color: #10a341"
@@ -59,6 +61,8 @@ class MainView : View("Алгоритм Дейкстры") {
     private val setGraphError: Label by fxid("setGraphError")
     private val autoplayMenuButton: MenuItem by fxid("autoplayMenuButton")
     private val startAlgorithmMenuButton: Menu by fxid("startAlgorithmMenuButton")
+    private val chooseVertexButton: MenuItem by fxid("chooseVertexButton")
+    private val chooseVertexContainer: Menu by fxid("chooseVertexContainer")
     private lateinit var temp: DijkstraSteps
     private var arrayPaths: ArrayList<String> = ArrayList()//пути рассчитываются один раз
     private var countPaths: Int = 0//количество путей на текущем шаге
@@ -102,16 +106,16 @@ class MainView : View("Алгоритм Дейкстры") {
 
         nextStepButton.setOnMouseClicked {
             prevStepButton.isDisable = false
-            if (layout.getStep() < temp.dijkstraSteps.size - 1) {
+            if (currentStep < temp.dijkstraSteps.size - 1) {
                 layout.writeLogs("Переход на следующий шаг")
-                layout.incrementStep()
+                currentStep++
             }
 
-            if (layout.getStep() == temp.dijkstraSteps.size - 1) {
+            if (currentStep == temp.dijkstraSteps.size - 1) {
                 nextStepButton.isDisable = true
                 graphController.state = GraphControllerState.NOTEDITING
             }
-            if (temp.dijkstraSteps[layout.getStep()].getState() == DijkstraState.UpdatedPath && countPaths != arrayPaths.size) {
+            if (temp.dijkstraSteps[currentStep].getState() == DijkstraState.UpdatedPath && countPaths != arrayPaths.size) {
                 countPaths++
             }
             changeInterface()
@@ -141,13 +145,13 @@ class MainView : View("Алгоритм Дейкстры") {
 
             nextStepButton.isDisable = false
 
-            if (layout.getStep() == 1) {
+            if (currentStep == 1) {
                 prevStepButton.isDisable = true
             }
-            if (layout.getStep() > 0 ) {
+            if (currentStep > 0 ) {
                 layout.writeLogs("Переход на предыдущий шаг")
-                layout.decrementStep()
-                if (temp.dijkstraSteps[layout.getStep() + 1].getState() == DijkstraState.UpdatedPath && countPaths != 0) {
+               currentStep--
+                if (temp.dijkstraSteps[currentStep + 1].getState() == DijkstraState.UpdatedPath && countPaths != 0) {
                     countPaths--
                 }
                 changeInterface()
@@ -163,7 +167,8 @@ class MainView : View("Алгоритм Дейкстры") {
             if (graphController.graph != null && graphController.graphIsSet) {
                 layout.writeLogs("Запущена пошаговая визуализация")
                 val d = Dijkstra()
-                temp = d.makeAlgorithm(graphController.graph!!, graphController.graph!!.getVertices()[0])
+                temp = d.makeAlgorithm(graphController.graph!!, graphController.graph!!.getVertices()[startVertex])
+                vertexes.clear()
                 graphController.graph!!.getVertices().forEach { vertexes.add(it) }
                 arrayPaths = getPaths(temp)
             }
@@ -173,7 +178,7 @@ class MainView : View("Алгоритм Дейкстры") {
                 startAlgorithmMenuButton.isDisable = true
 
                 nextStepButton.isDisable = false
-                layout.incrementStep()
+                currentStep++
                 changeInterface()
             }
 
@@ -186,7 +191,8 @@ class MainView : View("Алгоритм Дейкстры") {
             setGraphError.isVisible = !graphController.graphIsSet
             if (graphController.graph != null && graphController.graphIsSet) {
                 val d = Dijkstra()
-                temp = d.makeAlgorithm(graphController.graph!!, graphController.graph!!.getVertices()[0])
+                temp = d.makeAlgorithm(graphController.graph!!, graphController.graph!!.getVertices()[startVertex])
+                vertexes.clear()
                 graphController.graph!!.getVertices().forEach { vertexes.add(it) }
                 arrayPaths = getPaths(temp)
             }
@@ -197,7 +203,7 @@ class MainView : View("Алгоритм Дейкстры") {
                 isautoplayMenuButtonStarted = true
                 pauseButton.isDisable = false
                 graphController.state = GraphControllerState.RUNNING_ALGORITHM
-                layout.incrementStep()
+                currentStep++
                 changeInterface()
                 firstLoad = true
 
@@ -210,7 +216,7 @@ class MainView : View("Алгоритм Дейкстры") {
             graphController.buildFromFile(graphController.getFileNameFromDialog())
             if (isautoplayMenuButtonStarted)
                 clearTimer = true
-            clearLayout()
+            clearLayout(true)
             buildGraph(graphController)
         }
 
@@ -219,7 +225,7 @@ class MainView : View("Алгоритм Дейкстры") {
             pauseButton.style = PAUSE_BUTTON_STYLES
             if (isautoplayMenuButtonStarted)
                 clearTimer = true
-            clearLayout()
+            clearLayout(true)
             graphController.randomBuild()
             buildGraph(graphController)
         }
@@ -230,14 +236,45 @@ class MainView : View("Алгоритм Дейкстры") {
                 graphController.saveToFile()
             }
         }
+
+        chooseVertexButton.setOnAction {
+            vertexes.clear()
+            graphController.graph!!.getVertices().forEach { vertexes.add(it) }
+            val dialog = TextInputDialog()
+            dialog.headerText = ""
+            dialog.contentText = "Введите имя вершины"
+            val vertex = dialog.showAndWait().get()
+            var found = false
+            vertexes.forEach {
+                if (it.getValue() == vertex) {
+                    startVertex = it.getIndex()
+                    found = true
+                    chooseVertexContainer.isDisable = true
+                    startAlgorithmMenuButton.isDisable = false
+                }
+            }
+            if (!found) {
+                val alert =  Alert(Alert.AlertType.ERROR, "Нет вершины $vertex. Проверьте правильность написания.")
+                alert.headerText = ""
+                alert.title = "Ошибка"
+                alert.show()
+            }
+            else {
+                val alert =  Alert(Alert.AlertType.INFORMATION, "Вершина $vertex установлена как начальная")
+                alert.headerText = ""
+                alert.title = "Установка вершины"
+                alert.show()
+            }
+
+        }
     }
 
     private fun setInterval() {
         Timer().scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
-                if (layout.getStep() == temp.dijkstraSteps.size - 1 || clearTimer) {
+                if (currentStep == temp.dijkstraSteps.size - 1 || clearTimer) {
                     clearTimer = false
-                    if (layout.getStep() == temp.dijkstraSteps.size - 1) {
+                    if (currentStep == temp.dijkstraSteps.size - 1) {
                         isautoplayMenuButtonStarted = false
                         pauseButton.isDisable = true
                         graphController.state = GraphControllerState.NOTEDITING
@@ -252,14 +289,12 @@ class MainView : View("Алгоритм Дейкстры") {
                     this.cancel()
                 } else {
                     Platform.runLater(Runnable() {
-                        layout.incrementStep()
-                        if (temp.dijkstraSteps[layout.getStep()].getState() == DijkstraState.UpdatedPath && countPaths != arrayPaths.size) {
+                        currentStep++
+                        if (temp.dijkstraSteps[currentStep].getState() == DijkstraState.UpdatedPath && countPaths != arrayPaths.size) {
                             countPaths++
                         }
 
                         changeInterface()
-
-
                     })
                 }
 
@@ -268,7 +303,7 @@ class MainView : View("Алгоритм Дейкстры") {
         }, 0, CHANGE_STEP_TIME)
     }
 
-    private fun clearLayout() {
+    private fun clearLayout(fromBuild: Boolean = false) {
         byButton = false
         startAlgorithmMenuButton.isDisable = false
         setGraphError.isVisible = false
@@ -277,10 +312,11 @@ class MainView : View("Алгоритм Дейкстры") {
             root.getChildList()?.remove(root.getChildList()?.get(1))
         }
         vertexes.clear()
+
         if (tableContainer.content != null) {
             tableContainer.content = null
         }
-        layout.resetStep()
+        currentStep = -1
         countPaths = 0
         prevStepButton.isDisable = true
         nextStepButton.isDisable = true
@@ -322,7 +358,7 @@ class MainView : View("Алгоритм Дейкстры") {
         foundPathsText.clear()
         if (countPaths != 0) {
             for (i in 0 until countPaths) {
-                foundPathsText.text+= "\n${arrayPaths[i]}"
+                foundPathsText.text+= "${arrayPaths[i]}\n"
             }
         }
         setTable(currentStepInfo)
@@ -336,9 +372,9 @@ class MainView : View("Алгоритм Дейкстры") {
             val currentRow = mutableListOf<Any>()
             row.forEachIndexed { index, item ->
                 if (index == 0) {
-                    currentRow.add(indexRow+1)
+                    currentRow.add(indexRow*4)
                 }
-                if (item.first == null && item.second == Integer.MAX_VALUE) currentRow.add("inf")
+                if (item.first == null && item.second == Integer.MAX_VALUE) currentRow.add("∞")
                 else if (item.first == null) {
                     currentRow.add("--")
                 } else {
@@ -375,7 +411,6 @@ class MainView : View("Алгоритм Дейкстры") {
                 }
             }
         })
-        layout.writeLogs("Таблица обновлена")
     }
 
     private fun setQueue(currentStepInfo: DijkstraStep, sortable: Boolean = false) {
@@ -383,14 +418,14 @@ class MainView : View("Алгоритм Дейкстры") {
         if (!sortable) {
             val queue = currentStepInfo.getQueue()
             queue.forEach {
-                actionText += if (it.second == Integer.MAX_VALUE) "(${it.first.getValue()} inf)"
+                actionText += if (it.second == Integer.MAX_VALUE) "(${it.first.getValue()} ∞)"
                 else "(${it.first.getValue()} ${it.second})"
             }
         } else {
             val tmp = currentStepInfo.getQueue()
             val queue = tmp.sortedWith(MyComparator())
             queue.forEach {
-                actionText += if (it.second == Integer.MAX_VALUE) "(${it.first.getValue()} inf)"
+                actionText += if (it.second == Integer.MAX_VALUE) "(${it.first.getValue()} ∞)"
                 else "(${it.first.getValue()} ${it.second})"
             }
         }
@@ -400,7 +435,7 @@ class MainView : View("Алгоритм Дейкстры") {
 
 
     private fun changeInterface() {
-        val currentStepInfo = temp.dijkstraSteps[layout.getStep()]
+        val currentStepInfo = temp.dijkstraSteps[currentStep]
         currentActionText.text = currentStepInfo.getMessage()
 
         when (currentStepInfo.getState()) {
@@ -499,6 +534,7 @@ class MainView : View("Алгоритм Дейкстры") {
 
     private fun updateTable(currentStepInfo: DijkstraStep) {
         updateEveryStep(currentStepInfo)
+        layout.writeLogs("Таблица обновлена")
         // обновляется текущее действие
     }
 
@@ -510,6 +546,8 @@ class MainView : View("Алгоритм Дейкстры") {
             val graphPane = controller.wholePane
             graphPane.layoutY = -50.0
             graphContainer.add(graphPane)
+            chooseVertexContainer.isDisable = false
+            startAlgorithmMenuButton.isDisable = true
         } else {
             graphController.graphIsSet = false
             setGraphError.isVisible = true

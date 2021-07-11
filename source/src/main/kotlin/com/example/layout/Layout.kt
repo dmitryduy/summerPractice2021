@@ -14,23 +14,6 @@ class Layout {
     init {
         file.writeText("")
     }
-    private var currentStep = -1
-
-    fun getStep(): Int {
-        return currentStep
-    }
-
-    fun incrementStep() {
-        currentStep++
-    }
-
-    fun decrementStep() {
-        currentStep--
-    }
-
-    fun resetStep() {
-        currentStep = -1
-    }
 
     fun stylizeTextField(textField: TextField) {
         textField.isEditable = false
