@@ -29,6 +29,8 @@ var isautoplayMenuButtonStarted = false
 var clearTimer = false
 var byButton = false
 var firstLoad = false
+//reset alogrithm after autoplay finished
+var resetAlgorithm = false
 
 const val CHANGE_STEP_TIME: Long = 500
 const val PAUSE_BUTTON_STYLES = "-fx-shape: 'M32 32 L32 44 L42 38';-fx-background-color: #10a341"
@@ -141,6 +143,9 @@ class MainView : View("Алгоритм Дейкстры") {
         }
 
         stepByStepButton.setOnAction {
+            if (resetAlgorithm) {
+                clearLayout()
+            }
             setGraphError.isVisible = !graphController.graphIsSet
             if (graphController.graph != null && graphController.graphIsSet) {
                 val d = Dijkstra()
@@ -161,6 +166,9 @@ class MainView : View("Алгоритм Дейкстры") {
         }
 
         autoplayMenuButton.setOnAction {
+            if (resetAlgorithm) {
+                clearLayout()
+            }
             setGraphError.isVisible = !graphController.graphIsSet
             if (graphController.graph != null && graphController.graphIsSet) {
                 val d = Dijkstra()
@@ -216,6 +224,11 @@ class MainView : View("Алгоритм Дейкстры") {
                         isautoplayMenuButtonStarted = false
                         pauseButton.isDisable = true
                         graphController.state = GraphControllerState.NOTEDITING
+
+
+                        startAlgorithmMenuButton.isDisable = false
+                        resetAlgorithm = true
+                        pauseButton.style = PAUSE_BUTTON_STYLES;
                     }
 
 
@@ -259,7 +272,12 @@ class MainView : View("Алгоритм Дейкстры") {
         foundPathsText.clear()
         currentOrderLabel.text = ""
         currentActionText.text = ""
-        graphContainer.clear()
+        if (resetAlgorithm) {
+            resetAlgorithm = false
+        }
+        else {
+            graphContainer.clear()
+        }
 
 
     }
@@ -467,7 +485,6 @@ class MainView : View("Алгоритм Дейкстры") {
         val graph = controller.graph
         if (graph != null) {
             val graphPane = controller.wholePane
-            graphPane.layoutY = -50.0
             graphContainer.add(graphPane)
         } else {
             graphController.graphIsSet = false
