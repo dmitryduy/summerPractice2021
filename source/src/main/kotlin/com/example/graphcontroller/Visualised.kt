@@ -29,7 +29,6 @@ class VisualisedVertex(
     init{
         for (a in nodesList){
             a.setOnMouseClicked{
-               // gc.highlightVertices(listOf(this), Color.RED)
                 when(gc.state){
 
                     GraphControllerState.DELETINGVERTEX ->{
@@ -69,13 +68,17 @@ class VisualisedVertex(
             a.setOnMouseDragged{
                 if (gc.state == GraphControllerState.NOTEDITING) {
                     gc.highlightVertices(listOf(this), Color.BLUE)
-                    //if (10 < it.sceneX - 35 && it.sceneX - 10 <= gc.wholePane.maxWidth && 10 < it.sceneY - 45 && it.sceneY - 45 <= gc.wholePane.maxHeight) {
-                        gc.changeLayout(this, it.sceneX - 35, it.sceneY - 45)
-                    //}
+                    val xcntr = it.x + this.nodesList.first().layoutX -25
+                    val ycntr = it.y + this.nodesList.first().layoutY - 25
+                    if (gc.isInsidePane(xcntr, ycntr)) {
+                        gc.changeLayout(this, xcntr , ycntr)
+                    }
                 }
             }
-            a.setOnMouseDragReleased{
-                gc.updateVisualEdges()
+            a.setOnMouseReleased{
+                if (gc.state == GraphControllerState.NOTEDITING){
+                    gc.updateVisualEdges()
+                }
             }
             a.setOnMouseEntered{
 
@@ -84,6 +87,7 @@ class VisualisedVertex(
                         gc.highlightVertices(listOf(this), Color.DARKRED)
                     }
                 }
+                it.consume()
             }
             a.setOnMouseExited{
                 if (gc.state != GraphControllerState.CHOOSINGSECONDVERTEX && gc.state != GraphControllerState.RUNNING_ALGORITHM)

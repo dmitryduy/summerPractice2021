@@ -1,4 +1,5 @@
 package com.example.graphcontroller
+
 import com.example.graph.*
 import javafx.scene.Node
 import javafx.scene.control.Alert
@@ -14,18 +15,14 @@ import javafx.scene.shape.*
 import tornadofx.*
 import java.io.InputStream
 import com.example.visualised.*
-
 enum class GraphControllerState{
     NOTEDITING, CHOOSINGFIRSTVERTEX, CHOOSINGSECONDVERTEX, ADDINGVERTEX, DELETINGEDGE, DELETINGVERTEX, RUNNING_ALGORITHM
 }
-
-
-class VisualGraph(var edges: MutableList<VisualisedEdge>, var vertices: MutableList<VisualisedVertex>){
-}
-class GraphController {
+class VisualGraph(var edges: MutableList<VisualisedEdge>, var vertices: MutableList<VisualisedVertex>)
+class GraphController() {
 
     fun getFileNameFromDialog(): String?{
-        var d = chooseFile(
+        val d = chooseFile(
             "Выбрать файл", filters = arrayOf(
                 FileChooser.ExtensionFilter(
                     "Graph files",
@@ -39,7 +36,7 @@ class GraphController {
         }
     }
     fun buildFromFile(fileName: String?): Graph?{
-        var g = Graph()
+        val g = Graph()
         val inputStream: InputStream
         if (fileName == null)
             return null
@@ -55,15 +52,15 @@ class GraphController {
         val strs = mutableListOf<String>()
         inputStream.bufferedReader().useLines {lines -> lines.forEach {strs.add(it)}}
 
-        var vertexList = mutableListOf<String>()
-        var edgesList = mutableListOf<Triple<String, String, Int>>()
+        val vertexList = mutableListOf<String>()
+        val edgesList = mutableListOf<Triple<String, String, Int>>()
 
-        if (!strs.isEmpty()){
-        var n_str = strs.first()
+        if (strs.isNotEmpty()){
+        val n_str = strs.first()
 
             //проверка введенного числа вершин
             if (!n_str.isInt() || n_str.toInt() < 0){
-                showErrorAlert("Задано некорректное количество вершин",)
+                showErrorAlert("Задано некорректное количество вершин")
                 return null
 
             }
@@ -72,7 +69,7 @@ class GraphController {
 
             //проверка на количество строк в файле(должно быть n + 2)
             if (strs.size != n + 2){
-                showErrorAlert("Неверная структура файла",)
+                showErrorAlert("Неверная структура файла")
                 return null
 
             }
@@ -97,7 +94,7 @@ class GraphController {
                 }
             }
             if (rowsNum !=n ){
-                showErrorAlert("Неверный размер матрицы смежности, количество строк не равно $n",)
+                showErrorAlert("Неверный размер матрицы смежности, количество строк не равно $n")
                 return null
             }
             for (a in strs?.last()?.split(" ")) {
@@ -139,66 +136,65 @@ class GraphController {
         graphIsSet = true
         buildVisual()
     }
-    fun getVisualisedGraph(): Pane{
+    private fun getVisualisedGraph(): Pane{
         return Pane(painter.paintGraph(vGraph))
     }
     var state: GraphControllerState
     var graph: Graph?
     var visualEdges = mutableListOf<VisualisedEdge>()
-    var visualVertices = mutableListOf<VisualisedVertex>()
+    private var visualVertices = mutableListOf<VisualisedVertex>()
     var painter = Painter()
     var tmpVertexPair = Pair<Vertex?, Vertex?>(null, null)
-    var vGraph = VisualGraph(visualEdges, visualVertices)
+    private var vGraph = VisualGraph(visualEdges, visualVertices)
     var wholePane = Pane()
-    var gPane = Pane()
+    private var gPane = Pane()
     var vertexCircle = StackPane()
     var graphIsSet = false
+    var justBuilt = false
+
     init{
         state = GraphControllerState.NOTEDITING
         graph = Graph()
-        gPane.maxWidth = 500.0
-        gPane.maxHeight = 500.0
+        wholePane.maxWidth = 600.0
+        wholePane.maxHeight = 500.0
         wholePane.prefWidth = 500.0
         wholePane.prefHeight = 500.0
-        wholePane.layoutY = 30.0
+        wholePane.useMaxSize = true
         vertexCircle = vertexCursor(this)
-        wholePane.add(gPane)
-        wholePane.add(vertexCircle)
-        wholePane.setOnMouseClicked{
-            if (state == GraphControllerState.NOTEDITING)
-                updateVisualEdges()
-        }
         vertexCircle.isVisible = false
         wholePane.setOnMouseEntered{
-            if (state == GraphControllerState.ADDINGVERTEX) {
-                vertexCircle.layoutX = it.sceneX - 25.0
-                vertexCircle.layoutY = it.sceneY - 43.0
-                vertexCircle.isVisible = true
+
+            if (state == GraphControllerState.ADDINGVERTEX){
+                if (isInsidePane(it.x, it.y)){
+                    if (!wholePane.children.contains(vertexCircle))
+                        wholePane.add(vertexCircle)
+                    vertexCircle.layoutX = it.x - 25.0
+                    vertexCircle.layoutY = it.y - 25.0
+                    vertexCircle.isVisible = true
+                }
             }
         }
         wholePane.setOnMouseMoved{
-            if (state == GraphControllerState.ADDINGVERTEX) {
-                vertexCircle.layoutX = it.sceneX - 25.0
-                vertexCircle.layoutY = it.sceneY - 43.0
-                vertexCircle.isVisible = true
-            }
-        }
+            if (state == GraphControllerState.ADDINGVERTEX){
+                if (isInsidePane(it.x - 25.0, it.y - 25.0)){
+                    if (!wholePane.children.contains(vertexCircle))
+                        wholePane.add(vertexCircle)
+                    vertexCircle.layoutX = it.x - 25.0
+                    vertexCircle.layoutY = it.y - 25.0
+                    vertexCircle.isVisible = true
 
-        vertexCircle.setOnMouseMoved{
-            if (state == GraphControllerState.ADDINGVERTEX) {
-                vertexCircle.layoutX = it.sceneX - 25.0
-                vertexCircle.layoutY = it.sceneY - 43
-                vertexCircle.isVisible = true
+                }
             }
         }
         vertexCircle.setOnMouseClicked{
             when (state){
                 GraphControllerState.ADDINGVERTEX -> {
-                    addVisualVertex(it.sceneX, it.sceneY)
+                    addVisualVertex(vertexCircle.layoutX, vertexCircle.layoutY)
                     state = GraphControllerState.NOTEDITING
                     vertexCircle.isVisible = false
                     graphIsSet = true
                 }
+                else -> {}
             }
         }
     }
@@ -207,34 +203,45 @@ class GraphController {
         gPane = getVisualisedGraph()
         wholePane.children.removeIf{it.id == gPane.id || it.id == vertexCircle.id}
         wholePane.add(gPane)
+        if (!justBuilt) {
+            wholePane.prefWidthProperty().set(gPane.boundsInLocal.width + 15)
+            wholePane.prefHeightProperty().set(gPane.boundsInLocal.height + 80)
+
+        }
+        justBuilt = false
         wholePane.add(vertexCircle)
     }
     fun buildVisual(){
+        justBuilt = true
+        state = GraphControllerState.NOTEDITING
         visualVertices.clear()
         visualEdges.clear()
-        var p = Pane()
-        p.maxHeight = 300.0
-        p.maxWidth = 300.0
-        val r = 200.0
+        gPane.maxWidth = 500.0
+        gPane.maxHeight = 500.0
+        wholePane.minWidthProperty().set(500.0)
+        wholePane.minHeightProperty().set(500.0)
+        wholePane.usePrefHeight
+        wholePane.usePrefWidth
+        val r = 180.0
         val num = graph!!.getVertices().size
-        var vwc = mutableListOf<Triple<Vertex, Double, Double>>() //vertices with coordinates
+        val vwc = mutableListOf<Triple<Vertex, Double, Double>>() //vertices with coordinates
         val rad = 25.0
         //vertices
         for (i in 0 until num){
             val v = graph!!.getVertices()[i]
-            val cntr = p.maxHeight / 2 + 100.0
-            val circle_x = r * Math.cos(2 * Math.PI * i/num) + cntr
-            val circle_y = r * Math.sin(2 * Math.PI * i/num) + cntr
-            //p.add(paintVertex(g.getVertices()[i], circle_x, circle_y))
+            val cntry = 500 / 2 - 40
+            val cntrx = 500 / 2 - 40
+            val circle_x = r * Math.cos(2 * Math.PI * i/num) + cntrx
+            val circle_y = r * Math.sin(2 * Math.PI * i/num) + cntry
             vwc.add(Triple(graph!!.getVertices()[i], circle_x + 25.0, circle_y + 25.0))
-            var circle =  Circle()
+            val circle =  Circle()
             circle.setRadius(rad)
             circle.setCenterX(circle_x)
             circle.setCenterY(circle_y)
             circle.setStyle("-fx-fill: white; -fx-stroke: black; -fx-stroke-width: 2;");
-            var lb = Label(graph!!.getVertices()[i].getValue())
+            val lb = Label(graph!!.getVertices()[i].getValue())
             lb.setStyle("-fx-font-smoothing-type: lcd; -fx-fill: white; -fx-font-size: 22pt;")
-            var s = StackPane(circle, lb)
+            val s = StackPane(circle, lb)
             s.layoutX = circle_x
             s.layoutY = circle_y
             s.maxHeight = 500.0
@@ -242,6 +249,7 @@ class GraphController {
             visualVertices.add(VisualisedVertex(this, v, xy = Pair(circle_x + 25.0, circle_y + 25.0),
                 nodesList = mutableListOf(s)))
         }
+        //wholePane.prefHeight = gPane.prefHeight
         updateVisualEdges()
 
     }
@@ -263,15 +271,32 @@ class GraphController {
 
         highlightEdges(visualEdges, width = 2.0, type = "normal", color = Color.BLACK, labelColor = Color.BLACK, fontSize = 17.0)
     }
-    fun restoreVerticesStyle(){
-        highlightVertices(visualVertices, Color.BLACK, 2.0)
+    fun isInsidePane(x: Double, y: Double): Boolean{
+
+       if (wholePane.layoutX < x &&
+            x + 100 <= wholePane.maxWidth&&
+            wholePane.layoutY < y &&
+            y + 50 <= wholePane.maxHeight) {
+           return true
+        }
+       return false
+    }
+    fun restoreVerticesStyle(except: MutableList<VisualisedVertex> = mutableListOf<VisualisedVertex>()){
+
+        val toColorList = mutableListOf<VisualisedVertex>()
+        for (node in visualVertices)
+            if (!(node in except))
+                toColorList.add(node)
+        if (toColorList.isNotEmpty())
+            highlightVertices(toColorList, Color.BLACK, 2.0)
     }
     fun updateVisualEdges(offset: Double = 0.0){
         //edges
+
         visualEdges.clear()
         for (a in 0 until graph!!.getMatrix().size){
             for (b in 0 until graph!!.getMatrix()[a].size){
-                var edgePane = Pane()
+                val edgePane = Pane()
                 if (graph!!.getMatrix()[a][b] > 0) {
                     val line = Line(visualVertices[a].xy.first + offset, visualVertices[a].xy.second + offset, visualVertices[b].xy.first + offset,
                         visualVertices[b].xy.second + offset)
@@ -286,7 +311,7 @@ class GraphController {
                     var centerY = (edge.endY + edge.startY) / 2
                     val dist = 45.0
                     if (a == b){
-                        var list: List<Node> = drawLoop(startX, startY)
+                        val list: List<Node> = drawLoop(startX, startY)
                         for (e in list)
                             edgePane.add(e)
                     }
@@ -361,8 +386,8 @@ class GraphController {
         }
         graph!!.addVertex(name)
         val v = graph!!.getVertex(name)
-        val vPane = painter.paintVertex(v!!, x - 18, y - 35, 25.0)
-        val vvvv = VisualisedVertex(this, v, xy = Pair(x + 7, y - 10), nodesList = mutableListOf(vPane))
+        val vPane = painter.paintVertex(v!!, x, y, 25.0)
+        val vvvv = VisualisedVertex(this, v, xy = Pair(x, y), nodesList = mutableListOf(vPane))
         visualVertices.add(vvvv)
         updateVisualEdges()
     }
@@ -404,7 +429,7 @@ class GraphController {
     }
     fun highlightVertices( verticesToHighLight: List<VisualisedVertex>, color: Color,width: Double = 3.5){
         for (ver in verticesToHighLight)
-            for (cir in ver.nodesList!!.last()!!.getChildList()!!)
+            for (cir in ver.nodesList.last()!!.getChildList()!!)
                 if (cir is Circle) {
                     cir.stroke = color
                     cir.strokeWidth = width

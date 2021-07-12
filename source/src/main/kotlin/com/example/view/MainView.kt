@@ -73,6 +73,7 @@ class MainView : View("Алгоритм Дейкстры") {
     private val addEdgeButton: MenuItem by fxid("addEdgeButton")
     private val deleteEdgeButton: MenuItem by fxid("deleteEdgeButton")
     private val graphController = GraphController()
+    private var alreadyFoundToColor = mutableListOf<VisualisedVertex>()
 
     init {
         layout.writeLogs("Запущена программа")
@@ -86,6 +87,11 @@ class MainView : View("Алгоритм Дейкстры") {
 
 
         graphContainer.add(graphController.wholePane)
+        graphController.wholePane.maxWidthProperty().bind(graphContainer.widthProperty() - 10)
+        graphController.wholePane.maxHeightProperty().bind(graphContainer.heightProperty())
+        primaryStage.minWidthProperty().bind((graphController.wholePane.widthProperty() + 108) * 1.597)
+        graphContainer.minHeightProperty().bind(graphController.wholePane.heightProperty())
+        primaryStage.minHeightProperty().bind((graphController.wholePane.heightProperty() + 50) * 1.4)
 
         deleteVertexButton.setOnAction {
             graphController.state = GraphControllerState.DELETINGVERTEX
@@ -144,7 +150,9 @@ class MainView : View("Алгоритм Дейкстры") {
         prevStepButton.setOnMouseClicked {
 
             nextStepButton.isDisable = false
-
+            graphController.state = GraphControllerState.RUNNING_ALGORITHM
+            graphController.restoreEdgesStyles()
+            graphController.restoreVerticesStyle()
             if (currentStep == 1) {
                 prevStepButton.isDisable = true
             }
@@ -163,6 +171,7 @@ class MainView : View("Алгоритм Дейкстры") {
             if (resetAlgorithm) {
                 clearLayout()
             }
+            alreadyFoundToColor.clear()
             setGraphError.isVisible = !graphController.graphIsSet
             if (graphController.graph != null && graphController.graphIsSet) {
                 layout.writeLogs("Запущена пошаговая визуализация")
@@ -175,6 +184,8 @@ class MainView : View("Алгоритм Дейкстры") {
             if (!isByStepStarted && graphController.graphIsSet) {
                 isByStepStarted = true
                 graphController.state = GraphControllerState.RUNNING_ALGORITHM
+                graphController.restoreEdgesStyles()
+                graphController.restoreVerticesStyle()
                 startAlgorithmMenuButton.isDisable = true
 
                 nextStepButton.isDisable = false
@@ -188,6 +199,7 @@ class MainView : View("Алгоритм Дейкстры") {
             if (resetAlgorithm) {
                 clearLayout()
             }
+            alreadyFoundToColor.clear()
             setGraphError.isVisible = !graphController.graphIsSet
             if (graphController.graph != null && graphController.graphIsSet) {
                 val d = Dijkstra()
@@ -203,6 +215,8 @@ class MainView : View("Алгоритм Дейкстры") {
                 isautoplayMenuButtonStarted = true
                 pauseButton.isDisable = false
                 graphController.state = GraphControllerState.RUNNING_ALGORITHM
+                graphController.restoreEdgesStyles()
+                graphController.restoreVerticesStyle()
                 currentStep++
                 changeInterface()
                 firstLoad = true
@@ -243,29 +257,31 @@ class MainView : View("Алгоритм Дейкстры") {
             val dialog = TextInputDialog()
             dialog.headerText = ""
             dialog.contentText = "Введите имя вершины"
-            val vertex = dialog.showAndWait().get()
+            val vDialog = dialog.showAndWait()
+            val vertex = if (vDialog.isPresent) vDialog.get() else null
             var found = false
-            vertexes.forEach {
-                if (it.getValue() == vertex) {
-                    startVertex = it.getIndex()
-                    found = true
-                    chooseVertexContainer.isDisable = true
-                    startAlgorithmMenuButton.isDisable = false
+            if (vertex != null){
+                vertexes.forEach {
+                    if (it.getValue() == vertex) {
+                        startVertex = it.getIndex()
+                        found = true
+                        chooseVertexContainer.isDisable = true
+                        startAlgorithmMenuButton.isDisable = false
+                    }
+                }
+                if (!found) {
+                    val alert =  Alert(Alert.AlertType.ERROR, "Нет вершины $vertex. Проверьте правильность написания.")
+                    alert.headerText = ""
+                    alert.title = "Ошибка"
+                    alert.show()
+                }
+                else {
+                    val alert =  Alert(Alert.AlertType.INFORMATION, "Вершина $vertex установлена как начальная")
+                    alert.headerText = ""
+                    alert.title = "Установка вершины"
+                    alert.show()
                 }
             }
-            if (!found) {
-                val alert =  Alert(Alert.AlertType.ERROR, "Нет вершины $vertex. Проверьте правильность написания.")
-                alert.headerText = ""
-                alert.title = "Ошибка"
-                alert.show()
-            }
-            else {
-                val alert =  Alert(Alert.AlertType.INFORMATION, "Вершина $vertex установлена как начальная")
-                alert.headerText = ""
-                alert.title = "Установка вершины"
-                alert.show()
-            }
-
         }
     }
 
@@ -470,7 +486,7 @@ class MainView : View("Алгоритм Дейкстры") {
         var inQueueList = mutableListOf<VisualisedEdge>()
         var queueList = mutableListOf<Vertex>()
         graphController.restoreEdgesStyles()
-        graphController.restoreVerticesStyle()
+        graphController.restoreVerticesStyle(alreadyFoundToColor)
         currentStepInfo.getQueue().forEach {
             queueList.add(it.first)
         }
@@ -497,11 +513,11 @@ class MainView : View("Алгоритм Дейкстры") {
             currentActionText.text += arrayPaths[countPaths - 1]
         }
         //-----подсветка ребер и вершин входящих в найденный путь
-        graphController.restoreVerticesStyle()
+        graphController.restoreVerticesStyle(alreadyFoundToColor)
         graphController.restoreEdgesStyles()
-        var eList = mutableListOf<VisualisedEdge>()
-        var vList = mutableListOf<Vertex>()
-        var initial = currentStepInfo.getPath(currentStepInfo.getCurrVertex()).split("->")
+        val eList = mutableListOf<VisualisedEdge>()
+        val vList = mutableListOf<Vertex>()
+        val initial = currentStepInfo.getPath(currentStepInfo.getCurrVertex()).split("->")
         initial.forEach {
             val v = graphController.graph!!.getVertex(it.substringBeforeLast("="))
             if (v != null)
@@ -516,7 +532,12 @@ class MainView : View("Алгоритм Дейкстры") {
         }
         graphController.highlightEdges(eList, Color.GREEN, Color.DARKGREEN)
         graphController.highlightVertices(vvList, Color.GREEN)
+        if (vvList.isNotEmpty()){
+            alreadyFoundToColor.add(vvList.last())
+            graphController.highlightVertices(listOf(vvList.last()), Color.GREEN)
+        }
         //--------
+
         layout.writeLogs("Найден новый путь: ${arrayPaths[countPaths - 1]}")
     }
 
@@ -544,7 +565,6 @@ class MainView : View("Алгоритм Дейкстры") {
         val graph = controller.graph
         if (graph != null) {
             val graphPane = controller.wholePane
-            graphPane.layoutY = -50.0
             graphContainer.add(graphPane)
             chooseVertexContainer.isDisable = false
             startAlgorithmMenuButton.isDisable = true
@@ -552,9 +572,6 @@ class MainView : View("Алгоритм Дейкстры") {
             graphController.graphIsSet = false
             setGraphError.isVisible = true
         }
-
     }
-
-
 }
 

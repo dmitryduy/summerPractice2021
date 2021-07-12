@@ -156,21 +156,19 @@ class Painter{
         var s = StackPane(circle, lb)
         s.layoutX = x
         s.layoutY = y
-        s.prefHeight = 30.0
         s.prefWidth = 30.0
+        s.prefHeight = 30.0
         return s
     }
     fun paintGraph(vGraph: VisualGraph): Pane{
         var p = Pane()
-        p.maxHeight = 500.0
-        p.maxWidth = 500.0
+        for (ee in vGraph.edges)
+            for (node in ee.nodesList)
+                p.add(node)
         for (vv in vGraph.vertices){
             for (node in vv.nodesList)
                 p.add(node)
         }
-        for (ee in vGraph.edges)
-            for (node in ee.nodesList)
-                p.add(node)
 
         return p
     }
