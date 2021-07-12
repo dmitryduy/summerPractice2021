@@ -175,6 +175,7 @@ class GraphController() {
                     vertexCircle.isVisible = true
                 }
             }
+            else vertexCircle.removeFromParent()
         }
         wholePane.setOnMouseMoved{
             if (state == GraphControllerState.ADDINGVERTEX){
@@ -187,6 +188,7 @@ class GraphController() {
 
                 }
             }
+            else vertexCircle.removeFromParent()
         }
         vertexCircle.setOnMouseClicked{
             when (state){
@@ -196,7 +198,6 @@ class GraphController() {
                     vertexCircle.isVisible = false
                     graphIsSet = true
                 }
-                else -> {}
             }
         }
     }
