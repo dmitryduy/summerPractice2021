@@ -37,6 +37,7 @@ class GraphController() {
     }
     fun buildFromFile(fileName: String?): Graph?{
         val g = Graph()
+        vertexCircle.removeFromParent()
         val inputStream: InputStream
         if (fileName == null)
             return null
@@ -134,6 +135,7 @@ class GraphController() {
     fun randomBuild(){
         graph = Graph(GraphType.RandomGraph)
         graphIsSet = true
+        vertexCircle.removeFromParent()
         buildVisual()
     }
     private fun getVisualisedGraph(): Pane{
@@ -387,7 +389,7 @@ class GraphController() {
         graph!!.addVertex(name)
         val v = graph!!.getVertex(name)
         val vPane = painter.paintVertex(v!!, x, y, 25.0)
-        val vvvv = VisualisedVertex(this, v, xy = Pair(x, y), nodesList = mutableListOf(vPane))
+        val vvvv = VisualisedVertex(this, v, xy = Pair(x + 25.0, y + 25.0), nodesList = mutableListOf(vPane))
         visualVertices.add(vvvv)
         updateVisualEdges()
     }
@@ -398,8 +400,10 @@ class GraphController() {
             a.removeFromParent()
         updateVisualEdges()
     }
-    fun highlightEdges(edgesToHighlight: List<VisualisedEdge>, color: Color, labelColor: Color, width: Double = 5.0, fontSize: Double = 25.0, type: String = "bold"){
+    fun highlightEdges(edgesToHighlight: List<VisualisedEdge>, color: Color, labelColor: Color, width: Double = 5.0, fontSize: Double = 25.0, type: String = "bold",
+    highlight: Boolean = false){
         for (e in edgesToHighlight){
+            e.highlighted = highlight
             for (node in e.nodesList){
                 node.toFront()
                 when (node){
@@ -427,13 +431,15 @@ class GraphController() {
             }
         }
     }
-    fun highlightVertices( verticesToHighLight: List<VisualisedVertex>, color: Color,width: Double = 3.5){
-        for (ver in verticesToHighLight)
+    fun highlightVertices( verticesToHighLight: List<VisualisedVertex>, color: Color,width: Double = 3.5, highlight: Boolean = false){
+        for (ver in verticesToHighLight) {
+            ver.highlighted = highlight
             for (cir in ver.nodesList.last()!!.getChildList()!!)
                 if (cir is Circle) {
                     cir.stroke = color
                     cir.strokeWidth = width
                 }
+        }
     }
     fun changeLayout(vv: VisualisedVertex, x: Double, y: Double){
 

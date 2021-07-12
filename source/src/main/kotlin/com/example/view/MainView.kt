@@ -151,8 +151,6 @@ class MainView : View("Алгоритм Дейкстры") {
 
             nextStepButton.isDisable = false
             graphController.state = GraphControllerState.RUNNING_ALGORITHM
-            graphController.restoreEdgesStyles()
-            graphController.restoreVerticesStyle()
             if (currentStep == 1) {
                 prevStepButton.isDisable = true
             }
@@ -493,16 +491,22 @@ class MainView : View("Алгоритм Дейкстры") {
         graphController.visualEdges.forEach {
             if (it.edge.first.getValue() == currentVertex.getValue()) {
                 if (it.edge.second in queueList) {
-
                     inQueueList.add(it)
                 } else {
                     noQueueList.add(it)
                 }
             }
         }
-        graphController.highlightVertices(listOf(graphController.getVisualVertex(currentVertex)!!), Color.LIGHTGREEN)
-        graphController.highlightEdges(inQueueList, Color.LIGHTGREEN, Color.DARKGREEN)
-        graphController.highlightEdges(noQueueList, Color.LIGHTGRAY, Color.DARKGRAY)
+
+        graphController.highlightVertices(listOf(graphController.getVisualVertex(currentVertex)!!), Color.LIGHTGREEN, highlight = true)
+        graphController.highlightEdges(inQueueList, Color.LIGHTGREEN, Color.DARKGREEN, highlight = true)
+        graphController.highlightEdges(noQueueList, Color.LIGHTGRAY, Color.DARKGRAY, highlight = true)
+        val alreadyFoundList = mutableListOf<VisualisedVertex>()
+        for (i in 0 until countPaths){
+            val a = arrayPaths[i].substringAfterLast("->").substringBeforeLast("=")!!
+            alreadyFoundList.add(graphController.getVisualVertex(graphController.graph!!.getVertex(a)!!)!!)
+        }
+        graphController.highlightVertices(alreadyFoundList, Color.GREEN, highlight = true)
         //----------
     }
 
@@ -513,7 +517,7 @@ class MainView : View("Алгоритм Дейкстры") {
             currentActionText.text += arrayPaths[countPaths - 1]
         }
         //-----подсветка ребер и вершин входящих в найденный путь
-        graphController.restoreVerticesStyle(alreadyFoundToColor)
+        graphController.restoreVerticesStyle()
         graphController.restoreEdgesStyles()
         val eList = mutableListOf<VisualisedEdge>()
         val vList = mutableListOf<Vertex>()
@@ -526,18 +530,14 @@ class MainView : View("Алгоритм Дейкстры") {
         for (h in 0 until vList.size - 1) {
             eList.add(graphController.getVisualEdge(vList[h], vList[h + 1])!!)
         }
-        val vvList = mutableListOf<VisualisedVertex>()
-        vList.forEach {
-            vvList.add(graphController.getVisualVertex(it)!!)
+        val alreadyFoundList = mutableListOf<VisualisedVertex>()
+        for (i in 0 until countPaths){
+            val a = arrayPaths[i].substringAfterLast("->").substringBeforeLast("=")!!
+            alreadyFoundList.add(graphController.getVisualVertex(graphController.graph!!.getVertex(a)!!)!!)
         }
-        graphController.highlightEdges(eList, Color.GREEN, Color.DARKGREEN)
-        graphController.highlightVertices(vvList, Color.GREEN)
-        if (vvList.isNotEmpty()){
-            alreadyFoundToColor.add(vvList.last())
-            graphController.highlightVertices(listOf(vvList.last()), Color.GREEN)
-        }
+        graphController.highlightEdges(eList, Color.GREEN, Color.DARKGREEN, highlight = true)
+        graphController.highlightVertices(alreadyFoundList, Color.GREEN, highlight = true)
         //--------
-
         layout.writeLogs("Найден новый путь: ${arrayPaths[countPaths - 1]}")
     }
 
