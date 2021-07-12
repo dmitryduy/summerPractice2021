@@ -46,7 +46,7 @@ class DijkstraStep(
                             testFirst += graph.getVertices()[i].getValue() + " "
                         }
                     }
-                    val second = "Для данных вершин не получить путь меньше : "
+                    val second = "\nДля данных вершин не получить путь меньше : "
                     var testSecond = ""
                     for (i in curr.indices) {
                         if (curr[i].first == null && prev[i].first != null) {

@@ -15,8 +15,9 @@
 
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.Pane?>
-<GridPane  minHeight="870.0" minWidth="1000.0" prefHeight="800.0" prefWidth="1000.0" hgap="5.0" vgap="10.0"
-           xmlns:fx="http://javafx.com/fxml" xmlns="http://javafx.com/javafx">
+<?import javafx.scene.control.Tooltip?>
+<GridPane minHeight="870.0" minWidth="1000.0" prefHeight="800.0" prefWidth="1000.0" hgap="5.0" vgap="10.0"
+          xmlns:fx="http://javafx.com/fxml" xmlns="http://javafx.com/javafx">
     <columnConstraints>
         <ColumnConstraints percentWidth="30.0"/>
         <ColumnConstraints hgrow="SOMETIMES" percentWidth="13.3333"/>
@@ -68,10 +69,11 @@
             <MenuItem mnemonicParsing="false" fx:id="addVertexButton" text="Вершину"/>
             <MenuItem mnemonicParsing="false" fx:id="addEdgeButton" text="Ребро"/>
         </Menu>
-        <Menu mnemonicParsing="false" text="Удалить">
+        <Menu mnemonicParsing="false" text="Удалить" >
             <MenuItem mnemonicParsing="false" fx:id="deleteVertexButton" text="Вершину"/>
             <MenuItem mnemonicParsing="false" fx:id="deleteEdgeButton" text="Ребро"/>
         </Menu>
+
         <Menu mnemonicParsing="false" fx:id="startAlgorithmMenuButton" text="Запустить алгоритм">
             <MenuItem mnemonicParsing="false" fx:id="stepByStepButton" text="По шагам"/>
             <MenuItem mnemonicParsing="false" fx:id="autoplayMenuButton" text="Автоматически"/>

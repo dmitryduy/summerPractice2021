@@ -29,7 +29,6 @@ class VisualisedVertex(
     init{
         for (a in nodesList){
             a.setOnMouseClicked{
-               // gc.highlightVertices(listOf(this), Color.RED)
                 when(gc.state){
 
                     GraphControllerState.DELETINGVERTEX ->{
@@ -69,13 +68,17 @@ class VisualisedVertex(
             a.setOnMouseDragged{
                 if (gc.state == GraphControllerState.NOTEDITING) {
                     gc.highlightVertices(listOf(this), Color.BLUE)
-                    //if (10 < it.sceneX - 35 && it.sceneX - 10 <= gc.wholePane.maxWidth && 10 < it.sceneY - 45 && it.sceneY - 45 <= gc.wholePane.maxHeight) {
-                        gc.changeLayout(this, it.sceneX - 35, it.sceneY - 45)
-                    //}
+                    val xcntr = it.x + this.nodesList.first().layoutX -25
+                    val ycntr = it.y + this.nodesList.first().layoutY - 25
+                    if (gc.isInsidePane(xcntr, ycntr)) {
+                        gc.changeLayout(this, xcntr , ycntr)
+                    }
                 }
             }
-            a.setOnMouseDragReleased{
-                gc.updateVisualEdges()
+            a.setOnMouseReleased{
+                if (gc.state == GraphControllerState.NOTEDITING){
+                    gc.updateVisualEdges()
+                }
             }
             a.setOnMouseEntered{
 
@@ -84,9 +87,10 @@ class VisualisedVertex(
                         gc.highlightVertices(listOf(this), Color.DARKRED)
                     }
                 }
+                it.consume()
             }
             a.setOnMouseExited{
-                if (gc.state != GraphControllerState.CHOOSINGSECONDVERTEX && gc.state != GraphControllerState.RUNNING_ALGORITHM)
+                if (gc.state != GraphControllerState.CHOOSINGSECONDVERTEX && gc.state != GraphControllerState.RUNNING_ALGORITHM && highlighted == false)
                     gc.highlightVertices(listOf(this), Color.BLACK, 2.0)
             }
         }
@@ -118,10 +122,22 @@ class VisualisedEdge(
                 }
             }
             a.setOnMouseEntered{
+                if (gc.state != GraphControllerState.RUNNING_ALGORITHM)
+                    gc.hightLightWithOpacity(this)
+
                 when(gc.state){
                     GraphControllerState.NOTEDITING -> {
-                        gc.highlightEdges(listOf(this), width = 5.0, color = Color.rgb(103, 99, 98), type = "bold", labelColor = Color.BLACK , fontSize = 25.0)
-                        gc.hightLightWithOpacity(this)
+                        if (!highlighted) {
+                            gc.highlightEdges(
+                                listOf(this),
+                                width = 5.0,
+                                color = Color.rgb(103, 99, 98),
+                                type = "bold",
+                                labelColor = Color.BLACK,
+                                fontSize = 25.0
+                            )
+
+                        }
                     }
                     GraphControllerState.DELETINGEDGE -> {
                         gc.highlightEdges(listOf(this), width = 5.0, type = "bold", color = Color.RED, labelColor = Color.DARKRED, fontSize = 25.0)
@@ -130,11 +146,14 @@ class VisualisedEdge(
             }
             //restore original styles
             a.setOnMouseExited{
+                gc.restoreOpacities()
                 when(gc.state){
                     GraphControllerState.RUNNING_ALGORITHM -> {}
                     else -> {
-                        gc.highlightEdges(listOf(this), width = 2.0, type = "normal", color = Color.BLACK, labelColor = Color.BLACK, fontSize = 17.0)
-                        gc.restoreOpacities()
+                        if (!highlighted){
+                            gc.highlightEdges(listOf(this), width = 2.0, type = "normal", color = Color.BLACK, labelColor = Color.BLACK, fontSize = 17.0)
+
+                        }
                     }
                 }
             }
