@@ -502,6 +502,7 @@ class MainView : View("Алгоритм Дейкстры") {
         graphController.highlightEdges(inQueueList, Color.LIGHTGREEN, Color.DARKGREEN, highlight = true)
         graphController.highlightEdges(noQueueList, Color.LIGHTGRAY, Color.DARKGRAY, highlight = true)
         val alreadyFoundList = mutableListOf<VisualisedVertex>()
+        if (countPaths != 0)
         for (i in 0 until countPaths){
             val a = arrayPaths[i].substringAfterLast("->").substringBeforeLast("=")!!
             alreadyFoundList.add(graphController.getVisualVertex(graphController.graph!!.getVertex(a)!!)!!)
@@ -515,6 +516,7 @@ class MainView : View("Алгоритм Дейкстры") {
         // обновляется текущее действие
         if (countPaths != 0) {
             currentActionText.text += arrayPaths[countPaths - 1]
+            layout.writeLogs("Найден новый путь: ${arrayPaths[countPaths - 1]}")
         }
         //-----подсветка ребер и вершин входящих в найденный путь
         graphController.restoreVerticesStyle()
@@ -531,6 +533,7 @@ class MainView : View("Алгоритм Дейкстры") {
             eList.add(graphController.getVisualEdge(vList[h], vList[h + 1])!!)
         }
         val alreadyFoundList = mutableListOf<VisualisedVertex>()
+        if (countPaths != 0)
         for (i in 0 until countPaths){
             val a = arrayPaths[i].substringAfterLast("->").substringBeforeLast("=")!!
             alreadyFoundList.add(graphController.getVisualVertex(graphController.graph!!.getVertex(a)!!)!!)
@@ -538,7 +541,6 @@ class MainView : View("Алгоритм Дейкстры") {
         graphController.highlightEdges(eList, Color.GREEN, Color.DARKGREEN, highlight = true)
         graphController.highlightVertices(alreadyFoundList, Color.GREEN, highlight = true)
         //--------
-        layout.writeLogs("Найден новый путь: ${arrayPaths[countPaths - 1]}")
     }
 
     private fun updateQueue(currentStepInfo: DijkstraStep) {

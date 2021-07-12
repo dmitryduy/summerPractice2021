@@ -122,7 +122,7 @@ class VisualisedEdge(
                 }
             }
             a.setOnMouseEntered{
-                if (gc.state != GraphControllerState.RUNNING_ALGORITHM)
+                if (gc.state == GraphControllerState.NOTEDITING)
                     gc.hightLightWithOpacity(this)
 
                 when(gc.state){
@@ -146,13 +146,13 @@ class VisualisedEdge(
             }
             //restore original styles
             a.setOnMouseExited{
-                gc.restoreOpacities()
+
                 when(gc.state){
                     GraphControllerState.RUNNING_ALGORITHM -> {}
                     else -> {
                         if (!highlighted){
                             gc.highlightEdges(listOf(this), width = 2.0, type = "normal", color = Color.BLACK, labelColor = Color.BLACK, fontSize = 17.0)
-
+                            gc.restoreOpacities()
                         }
                     }
                 }

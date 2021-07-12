@@ -449,7 +449,6 @@ class GraphController() {
             node.layoutY = y
         }
         vv.xy = Pair(x+ 25, y + 25)
-        //updateVisualEdges()
 
     }
     fun saveToFile(){
