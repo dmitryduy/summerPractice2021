@@ -13,7 +13,6 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.control.Tooltip?>
 <GridPane minHeight="870.0" minWidth="1000.0" prefHeight="800.0" prefWidth="1000.0" hgap="5.0" vgap="10.0"
@@ -34,11 +33,13 @@
         <Insets left="5.0" right="5.0"/>
     </padding>
 
-    <Pane  fx:id="graphContainer" GridPane.columnIndex="0" GridPane.columnSpan="3" GridPane.rowIndex="1"/>
-    <ScrollPane  style="-fx-background-color: none" fx:id="tableContainer" GridPane.columnIndex="3" GridPane.columnSpan="2" GridPane.rowIndex="1">
+    <Pane fx:id="graphContainer" GridPane.columnIndex="0" GridPane.columnSpan="3" GridPane.rowIndex="1"/>
+    <ScrollPane style="-fx-background-color: none" fx:id="tableContainer" GridPane.columnIndex="3"
+                GridPane.columnSpan="2" GridPane.rowIndex="1">
     </ScrollPane>
     <TextField fx:id="currentOrder" GridPane.rowIndex="2" GridPane.columnSpan="4" GridPane.valignment="TOP"/>
-    <Label fx:id="currentActionLabel" style="-fx-font-weight: bold;" text="Текущее действие" GridPane.rowIndex="2" GridPane.valignment="TOP">
+    <Label fx:id="currentActionLabel" style="-fx-font-weight: bold;" text="Текущее действие" GridPane.rowIndex="2"
+           GridPane.valignment="TOP">
         <GridPane.margin>
             <Insets top="40.0"/>
         </GridPane.margin>
@@ -48,9 +49,15 @@
             <Insets top="70.0"/>
         </GridPane.margin>
     </TextArea>
-    <Button  GridPane.columnIndex="2" GridPane.rowIndex="2" disable="true"  fx:id="pauseButton" layoutX="405.0" layoutY="630.0" prefHeight="53.0" prefWidth="53.0" style="-fx-shape: 'M32 32 L32 44 L42 38';-fx-background-color: green" />
-    <Button  GridPane.columnIndex="3" GridPane.rowIndex="2" disable="true" fx:id="nextStepButton" layoutX="492.0" layoutY="630.0" prefHeight="53.0" prefWidth="72.0" style= "-fx-background-color: #3F48CC;-fx-shape: 'M32 30 L32 34 L32 42 L42 36'"/>
-    <Button  GridPane.columnIndex="1" GridPane.rowIndex="2" disable="true" fx:id="prevStepButton" layoutX="305.0" layoutY="630.0" prefHeight="53.0" prefWidth="72.0" style="-fx-background-color: #3F48CC;-fx-shape: 'M32 30 L32 34 L32 42 L22 36'"/>
+    <Button GridPane.columnIndex="2" GridPane.rowIndex="2" disable="true" fx:id="pauseButton" layoutX="405.0"
+            layoutY="630.0" prefHeight="53.0" prefWidth="53.0"
+            style="-fx-shape: 'M32 32 L32 44 L42 38';-fx-background-color: green"/>
+    <Button GridPane.columnIndex="3" GridPane.rowIndex="2" disable="true" fx:id="nextStepButton" layoutX="492.0"
+            layoutY="630.0" prefHeight="53.0" prefWidth="72.0"
+            style="-fx-background-color: #3F48CC;-fx-shape: 'M32 30 L32 34 L32 42 L42 36'"/>
+    <Button GridPane.columnIndex="1" GridPane.rowIndex="2" disable="true" fx:id="prevStepButton" layoutX="305.0"
+            layoutY="630.0" prefHeight="53.0" prefWidth="72.0"
+            style="-fx-background-color: #3F48CC;-fx-shape: 'M32 30 L32 34 L32 42 L22 36'"/>
 
     <Label fx:id="foundPathLabel" style="-fx-font-weight: bold;" text="Найденные пути"
            GridPane.columnIndex="4" GridPane.rowIndex="2" GridPane.valignment="TOP"/>
@@ -61,30 +68,47 @@
         </GridPane.margin>
     </TextArea>
     <MenuBar GridPane.columnSpan="5">
-        <Menu mnemonicParsing="false" text="Построить граф">
-            <MenuItem mnemonicParsing="false" fx:id = "randomGraphBuildButton" text="Случайный"/>
-            <MenuItem mnemonicParsing="false" fx:id = "buildGraphFromFileButton" text="Из файла"/>
+        <Menu text="Построить граф">
+            <MenuItem fx:id="randomGraphBuildButton" text="Случайный"/>
+            <MenuItem fx:id="buildGraphFromFileButton" text="Из файла"/>
         </Menu>
-        <Menu mnemonicParsing="false" text="Добавить">
-            <MenuItem mnemonicParsing="false" fx:id="addVertexButton" text="Вершину"/>
-            <MenuItem mnemonicParsing="false" fx:id="addEdgeButton" text="Ребро"/>
+        <Menu>
+            <graphic>
+                <Label text="Добавить">
+                    <tooltip>
+                        <Tooltip text="Добавить вершину/ребро"/>
+                    </tooltip>
+                </Label>
+            </graphic>
+            <MenuItem fx:id="addVertexButton" text="Вершину"/>
+            <MenuItem fx:id="addEdgeButton" text="Ребро"/>
         </Menu>
-        <Menu mnemonicParsing="false" text="Удалить" >
-            <MenuItem mnemonicParsing="false" fx:id="deleteVertexButton" text="Вершину"/>
-            <MenuItem mnemonicParsing="false" fx:id="deleteEdgeButton" text="Ребро"/>
+        <Menu>
+            <graphic>
+                <Label text="Удалить">
+                    <tooltip>
+                        <Tooltip text="Удалить вершину/ребро"/>
+                    </tooltip>
+                </Label>
+            </graphic>
+            <MenuItem fx:id="deleteVertexButton" text="Вершину"/>
+            <MenuItem fx:id="deleteEdgeButton" text="Ребро"/>
         </Menu>
 
-        <Menu mnemonicParsing="false" fx:id="startAlgorithmMenuButton" text="Запустить алгоритм">
-            <MenuItem mnemonicParsing="false" fx:id="stepByStepButton" text="По шагам"/>
-            <MenuItem mnemonicParsing="false" fx:id="autoplayMenuButton" text="Автоматически"/>
+        <Menu fx:id="startAlgorithmMenuButton" text="Запустить алгоритм">
+            <MenuItem fx:id="stepByStepButton" text="По шагам"/>
+            <MenuItem fx:id="autoplayMenuButton" text="Автоматически"/>
         </Menu>
-        <Menu mnemonicParsing="false" text="Сохранить">
-            <MenuItem mnemonicParsing="false" fx:id="saveToFileButton" text="В файл"/>
+        <Menu text="Сохранить">
+            <MenuItem fx:id="saveToFileButton" text="В файл"/>
         </Menu>
-        <Menu  disable="true" text="Выбрать вершину" fx:id="chooseVertexContainer">
-            <MenuItem fx:id="chooseVertexButton" text="Выбрать вершину"/>
+        <Menu disable="true" fx:id="chooseVertexContainer">
+            <graphic>
+                <Label fx:id="chooseVertexButton" text="Выбрать вершину"/>
+            </graphic>
         </Menu>
     </MenuBar>
-    <Label visible="false" fx:id="setGraphError"   GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.columnSpan="3" prefHeight="25" prefWidth="400" textFill="red" style="-fx-font-weight: bold;"
+    <Label visible="false" fx:id="setGraphError" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.columnSpan="3"
+           prefHeight="25" prefWidth="400" textFill="red" style="-fx-font-weight: bold;"
            text="Пожалуйста, выберите граф"/>
 </GridPane>

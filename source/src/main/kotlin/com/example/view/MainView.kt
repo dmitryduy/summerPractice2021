@@ -61,7 +61,7 @@ class MainView : View("Алгоритм Дейкстры") {
     private val setGraphError: Label by fxid("setGraphError")
     private val autoplayMenuButton: MenuItem by fxid("autoplayMenuButton")
     private val startAlgorithmMenuButton: Menu by fxid("startAlgorithmMenuButton")
-    private val chooseVertexButton: MenuItem by fxid("chooseVertexButton")
+    private val chooseVertexButton: Label by fxid("chooseVertexButton")
     private val chooseVertexContainer: Menu by fxid("chooseVertexContainer")
     private lateinit var temp: DijkstraSteps
     private var arrayPaths: ArrayList<String> = ArrayList()//пути рассчитываются один раз
@@ -228,7 +228,7 @@ class MainView : View("Алгоритм Дейкстры") {
             graphController.buildFromFile(graphController.getFileNameFromDialog())
             if (isautoplayMenuButtonStarted)
                 clearTimer = true
-            clearLayout(true)
+            clearLayout()
             buildGraph(graphController)
         }
 
@@ -237,7 +237,7 @@ class MainView : View("Алгоритм Дейкстры") {
             pauseButton.style = PAUSE_BUTTON_STYLES
             if (isautoplayMenuButtonStarted)
                 clearTimer = true
-            clearLayout(true)
+            clearLayout()
             graphController.randomBuild()
             buildGraph(graphController)
         }
@@ -249,7 +249,7 @@ class MainView : View("Алгоритм Дейкстры") {
             }
         }
 
-        chooseVertexButton.setOnAction {
+        chooseVertexButton.setOnMouseClicked {
             vertexes.clear()
             graphController.graph!!.getVertices().forEach { vertexes.add(it) }
             val dialog = TextInputDialog()
@@ -317,7 +317,7 @@ class MainView : View("Алгоритм Дейкстры") {
         }, 0, CHANGE_STEP_TIME)
     }
 
-    private fun clearLayout(fromBuild: Boolean = false) {
+    private fun clearLayout() {
         byButton = false
         startAlgorithmMenuButton.isDisable = false
         setGraphError.isVisible = false
